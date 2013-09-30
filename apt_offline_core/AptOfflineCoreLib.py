@@ -25,8 +25,8 @@ import time
 import shutil
 import platform
 import string
-import urllib2
-import Queue
+import urllib.request, urllib.error, urllib.parse
+import queue
 import threading
 import socket
 import tempfile
@@ -48,16 +48,16 @@ except ImportError:
 try:
         import argparse
 except ImportError:
-        import AptOffline_argparse as argparse
+        from . import AptOffline_argparse as argparse
 
 # On Debian, python-debianbts package provides this library
 DebianBTS = True
 try:
-        import AptOfflineDebianBtsLib
+        from . import AptOfflineDebianBtsLib
 except ImportError:
         DebianBTS = False
 
-import AptOfflineMagicLib
+from . import AptOfflineMagicLib
 
 #INFO: added to handle GUI interaction
 guiBool = False
@@ -74,7 +74,7 @@ except ImportError:
         PythonApt = False
 PythonApt = False #Remove it after porting to python-apt
     
-import AptOfflineLib
+from . import AptOfflineLib
 
 #INFO: Set the default timeout to 30 seconds for the packages that are being downloaded.
 socket.setdefaulttimeout(30)
@@ -243,7 +243,7 @@ class GenericDownloadFunction():
                         counter = 0
                         
                         os.chdir(download_dir)
-                        temp = urllib2.urlopen(url)
+                        temp = urllib.request.urlopen(url)
                         headers = temp.info()
                         size = int(headers['Content-Length'])
                         data = open(file,'wb')
@@ -256,10 +256,10 @@ class GenericDownloadFunction():
                                 socket_timeout = None
                                 try:
                                         data.write (temp.read(block_size))
-                                except socket.timeout, timeout:
+                                except socket.timeout as timeout:
                                         socket_timeout = True
                                         socket_counter += 1
-                                except socket.error, error:
+                                except socket.error as error:
                                         socket_timeout = True
                                         socket_counter += 1
                                 if socket_counter == SOCKET_TIMEOUT_RETRY:
@@ -289,11 +289,12 @@ class GenericDownloadFunction():
                         temp.close()
                         return True
                 #FIXME: Find out optimal fix for this exception handling
-                except OSError, (errno, strerror):
+                except OSError as xxx_todo_changeme:
+                        (errno, strerror) = xxx_todo_changeme.args
                         errfunc(errno, strerror, download_dir)
-                except urllib2.HTTPError, errstring:
+                except urllib.error.HTTPError as errstring:
                         errfunc(errstring.code, errstring.msg, url)
-                except urllib2.URLError, errstring:
+                except urllib.error.URLError as errstring:
                         #INFO: Weird. But in urllib2.URLError, I noticed that for
                         # error type "timeouts", no errno was defined.
                         # errstring.errno was listed as None 
@@ -304,7 +305,7 @@ class GenericDownloadFunction():
                                 errfunc(504, errstring.reason, url)
                         else:
                                 errfunc(errstring.errno, errstring.reason, url)
-                except IOError, e:
+                except IOError as e:
                         if hasattr(e, 'reason'):
                                 log.err("%s\n" % (e.reason))
                         if hasattr(e, 'code') and hasattr(e, 'reason'):
@@ -332,24 +333,24 @@ def stripper(item):
         and returns them.'''
     
         item = item.split(' ')
-	log.verbose("Item is %s\n" % (item) )
+        log.verbose("Item is %s\n" % (item) )
 
-        url = string.rstrip(string.lstrip(''.join(item[0]), chars="'"), chars="'")
-        file = string.rstrip(string.lstrip(''.join(item[1]), chars="'"), chars="'")
-	try:
-		size = int(string.rstrip(string.lstrip(''.join(item[2]), chars = "'"), chars="'"))
-	except ValueError:
-		log.verbose("%s is malformed\n" % (" ".join(item) ) )
-		size = 0
+        url = str.rstrip(str.lstrip(''.join(item[0]), chars="'"), chars="'")
+        file = str.rstrip(str.lstrip(''.join(item[1]), chars="'"), chars="'")
+        try:
+                size = int(str.rstrip(str.lstrip(''.join(item[2]), chars = "'"), chars="'"))
+        except ValueError:
+                log.verbose("%s is malformed\n" % (" ".join(item) ) )
+                size = 0
 
         #INFO: md5 ends up having '\n' with it.
         # That needs to be stripped too.
-	try:
-		checksum = string.rstrip(string.lstrip(''.join(item[3]), chars = "'"), chars = "'")
-        	checksum = string.rstrip(checksum, chars = "\n")
-	except IndexError:
-		if item[1].endswith("_Release") or item[1].endswith("_Release.gpg"):
-			checksum = None
+        try:
+                checksum = string.rstrip(string.lstrip(''.join(item[3]), chars = "'"), chars = "'")
+                checksum = string.rstrip(checksum, chars = "\n")
+        except IndexError:
+                if item[1].endswith("_Release") or item[1].endswith("_Release.gpg"):
+                        checksum = None
         return url, file, size, checksum
 
 
@@ -425,17 +426,17 @@ def fetcher( args ):
             if Str_ProxyPort:
                 try:
                     log.verbose(Str_ProxyHost + ":" + Str_ProxyPort)
-                    proxy_support = urllib2.ProxyHandler({'http': Str_ProxyHost + ":" + str(Str_ProxyPort) })
-                    opener = urllib2.build_opener(proxy_support)
-                    urllib2.install_opener(opener)
+                    proxy_support = urllib.request.ProxyHandler({'http': Str_ProxyHost + ":" + str(Str_ProxyPort) })
+                    opener = urllib.request.build_opener(proxy_support)
+                    urllib.request.install_opener(opener)
                 except :
                     log.err("Handle this exception.\n")
                     sys.exit(1)
             else:
                 try:
-                    proxy_support = urllib2.ProxyHandler({'http': Str_ProxyHost})
-                    opener = urllib2.build_opener(proxy_support)
-                    urllib2.install_opener(opener)
+                    proxy_support = urllib.request.ProxyHandler({'http': Str_ProxyHost})
+                    opener = urllib.request.build_opener(proxy_support)
+                    urllib.request.install_opener(opener)
                 except:
                     log.err("Handle this exception.\n")
                     sys.exit(1)
@@ -469,7 +470,7 @@ def fetcher( args ):
                 tempdir = tempfile.gettempdir()
                 if os.access( tempdir, os.W_OK ) is True:
                         pidname = os.getpid()
-                        randomjunk = ''.join(chr(random.randint(97,122)) for x in xrange(5)) if guiBool else ''
+                        randomjunk = ''.join(chr(random.randint(97,122)) for x in range(5)) if guiBool else ''
                         # 5 byte random junk to make mkdir possible multiple times
                         # use-case -> download many sigs of different machines using one instance
                         tempdir = os.path.join(tempdir , "apt-offline-downloads-" + str(pidname) + randomjunk)
@@ -486,7 +487,7 @@ def fetcher( args ):
                         #INFO: If the path is provided, but doesn't exist
                         # Create it.
                         try:
-                                os.umask( 0002 )
+                                os.umask( 0o002 )
                                 os.mkdir( Str_DownloadDir )
                                 Str_DownloadDir = os.path.abspath( Str_DownloadDir )
                         except:
@@ -526,30 +527,31 @@ def fetcher( args ):
         if Str_GetArg is not None:
                 try:
                         raw_data_list = open( Str_GetArg, 'r' ).readlines()
-                except IOError, ( errno, strerror ):
+                except IOError as xxx_todo_changeme1:
+                        ( errno, strerror ) = xxx_todo_changeme1.args
                         log.err( "%s %s\n" % ( errno, strerror ) )
                         errfunc( errno, '' )
                         
                 FetchData['Item'] = []
                 for item in raw_data_list:
-			# Interim fix for Debian bug #664654
-			(ItemURL, ItemFile, ItemSize, ItemChecksum) = stripper(item)
-			if ItemURL.endswith("InRelease"):
-				log.verbose("APT uses new InRelease auth mechanism")
-				ExtraItemURL = ItemURL.rstrip(ItemURL.split("/")[-1])
-				GPGItemURL = "'" + ExtraItemURL + "Release.gpg"
-				ReleaseItemURL = "'" + ExtraItemURL + "Release"
-				ExtraItemFile = ItemFile.rstrip(ItemFile.split("_")[-1])
-				GPGItemFile = ExtraItemFile + "Release.gpg"
-				ReleaseItemFile = ExtraItemFile + "Release"
+                        # Interim fix for Debian bug #664654
+                        (ItemURL, ItemFile, ItemSize, ItemChecksum) = stripper(item)
+                        if ItemURL.endswith("InRelease"):
+                                log.verbose("APT uses new InRelease auth mechanism")
+                                ExtraItemURL = ItemURL.rstrip(ItemURL.split("/")[-1])
+                                GPGItemURL = "'" + ExtraItemURL + "Release.gpg"
+                                ReleaseItemURL = "'" + ExtraItemURL + "Release"
+                                ExtraItemFile = ItemFile.rstrip(ItemFile.split("_")[-1])
+                                GPGItemFile = ExtraItemFile + "Release.gpg"
+                                ReleaseItemFile = ExtraItemFile + "Release"
 
-				FetchData['Item'].append(GPGItemURL + " " + GPGItemFile + " " + str(ItemSize) + " " + ItemChecksum)
-				log.verbose("Printing GPG URL/Files")
-				log.verbose("%s %s" % (GPGItemURL, GPGItemFile) )
+                                FetchData['Item'].append(GPGItemURL + " " + GPGItemFile + " " + str(ItemSize) + " " + ItemChecksum)
+                                log.verbose("Printing GPG URL/Files")
+                                log.verbose("%s %s" % (GPGItemURL, GPGItemFile) )
 
-				FetchData['Item'].append(ReleaseItemURL + " " + ReleaseItemFile + " " + str(ItemSize) + " " + ItemChecksum)
-				log.verbose("Printing Release URL/Files")
-				log.verbose("%s %s" % (ReleaseItemURL, ReleaseItemFile) )
+                                FetchData['Item'].append(ReleaseItemURL + " " + ReleaseItemFile + " " + str(ItemSize) + " " + ItemChecksum)
+                                log.verbose("Printing Release URL/Files")
+                                log.verbose("%s %s" % (ReleaseItemURL, ReleaseItemFile) )
                         FetchData['Item'].append( item )
         del raw_data_list
         
@@ -580,12 +582,12 @@ def fetcher( args ):
                 
                 (key, item) = request
 
-		# On many boxes, the cdrom apt repository will be enabled.
-		# For now, let's skip the cdrom repository items.
-		if item.startswith("\'cdrom"):
-			log.verbose("cdrom apt repository not supported. Skipping\n")
-			log.verbose(item)
-			return True
+                # On many boxes, the cdrom apt repository will be enabled.
+                # For now, let's skip the cdrom repository items.
+                if item.startswith("\'cdrom"):
+                        log.verbose("cdrom apt repository not supported. Skipping\n")
+                        log.verbose(item)
+                        return True
                 
                 #INFO: Everything
                 (url, file, download_size, checksum) = stripper(item)
@@ -821,11 +823,11 @@ def fetcher( args ):
                                                 errlist.append(NewUrl)
 
         # Create two Queues for the requests and responses
-        requestQueue = Queue.Queue()
-        responseQueue = Queue.Queue()
+        requestQueue = queue.Queue()
+        responseQueue = queue.Queue()
 
         # create size metadata for progress
-        for key in FetchData.keys():
+        for key in list(FetchData.keys()):
                 for item in FetchData.get(key):
                         if guiBool:
                             #REAL_PROGRESS: to calculate the total download size, NOTE: initially this was under the loop that Queued the items
@@ -836,7 +838,7 @@ def fetcher( args ):
                                 size = int(download_size)
                                 if size == 0:
                                     log.msg("MSG_START")
-                                    temp = urllib2.urlopen(url)
+                                    temp = urllib.request.urlopen(url)
                                     headers = temp.info()
                                     size = int(headers['Content-Length'])
                                 totalSize[0] += size
@@ -849,7 +851,7 @@ def fetcher( args ):
         ConnectThread.startThreads()
         # Queue up the requests.
         #for item in raw_data_list: requestQueue.put(item)
-        for key in FetchData.keys():
+        for key in list(FetchData.keys()):
             for item in FetchData.get(key):
                 ConnectThread.populateQueue( (key, item) )
             
@@ -940,8 +942,8 @@ def installer( args ):
                 def __init__(self, lists, packages):
                         
                         try:
-                                self.listLock = os.open(lists, os.O_RDWR | os.O_TRUNC | os.O_CREAT, 0640)
-                                self.pkgLock = os.open(packages, os.O_RDWR | os.O_TRUNC | os.O_CREAT, 0640)
+                                self.listLock = os.open(lists, os.O_RDWR | os.O_TRUNC | os.O_CREAT, 0o640)
+                                self.pkgLock = os.open(packages, os.O_RDWR | os.O_TRUNC | os.O_CREAT, 0o640)
                         except:
                                 log.err("Couldn't open lockfile\n")
                                 return False
@@ -989,7 +991,7 @@ def installer( args ):
                 tempdir = tempfile.gettempdir()
                 if os.access( tempdir, os.W_OK ) is True:
                         pidname = os.getpid()
-                        randomjunk = ''.join(chr(random.randint(97,122)) for x in xrange(5)) if guiBool else ''
+                        randomjunk = ''.join(chr(random.randint(97,122)) for x in range(5)) if guiBool else ''
                         # 5 byte random junk to make mkdir possible multiple times
                         # use-case -> installing multiple bundles with one dialog
                         tempdir = os.path.join(tempdir , "apt-offline-src-downloads-" + str(pidname) + randomjunk )
@@ -1098,7 +1100,7 @@ def installer( args ):
                 log.msg( "(?) Display this help message.\n" )
         
         def get_response():
-                response = raw_input( "What would you like to do next:\t (y, N, Bug Number, R, ?)" )
+                response = input( "What would you like to do next:\t (y, N, Bug Number, R, ?)" )
                 response = response.rstrip( "\r" )
                 return response
     
@@ -1109,10 +1111,10 @@ def installer( args ):
                 value => subject string
                 '''
                 log.msg( "\n\nFollowing are the list of bugs present.\n" )
-		sortedKeyList = dictList.keys()
-		sortedKeyList.sort()
+                sortedKeyList = list(dictList.keys())
+                sortedKeyList.sort()
                 for each_bug in sortedKeyList:
-			pkg_name = each_bug.split( '.' )[-3].split('/')[-1]
+                        pkg_name = each_bug.split( '.' )[-3].split('/')[-1]
                         bug_num = each_bug.split( '.' )[-2]
                         bug_subject = dictList[each_bug]
                         log.msg( "%s\t%s\t%s\n" % ( pkg_name, bug_num, bug_subject ) )
@@ -1237,7 +1239,7 @@ def installer( args ):
                                                 
                                                 #INFO: Take care of Src Pkgs
                                                 found = False
-                                                for item in SrcPkgDict.keys():
+                                                for item in list(SrcPkgDict.keys()):
                                                         if filename in SrcPkgDict[item]:
                                                                 found = True
                                                                 break
@@ -1300,7 +1302,7 @@ def installer( args ):
                                 
                                 #INFO: Take care of Src Pkgs
                                 found = False
-                                for item in SrcPkgDict.keys():
+                                for item in list(SrcPkgDict.keys()):
                                         if filename in SrcPkgDict[item]:
                                                 found = True
                                                 break
@@ -1315,7 +1317,7 @@ def installer( args ):
                                         log.msg("Installing src package file %s to %s.\n" % (filename, Str_InstallSrcPath) )
                                         continue
 
-                                print "Hola!!"
+                                print("Hola!!")
                                 try:
                                         if AptLock.lockPackages() is False:
                                                 log.err("Couldn't acquire lock on APT\nIs another apt process running?\n")
@@ -1327,7 +1329,7 @@ def installer( args ):
                                 finally:
                                         AptLock.unlockPackages()
                                 data.file.close()
-                                print "Another Hola!!!"
+                                print("Another Hola!!!")
                         #else:
                         #       log.msg( "Exiting gracefully on user request.\n" )
                         #       sys.exit( 0 )
@@ -1364,7 +1366,7 @@ def installer( args ):
                                         continue
                                 #INFO: Take care of Src Pkgs
                                 found = False
-                                for item in SrcPkgDict.keys():
+                                for item in list(SrcPkgDict.keys()):
                                         if filename in SrcPkgDict[item]:
                                                 found = True
                                                 break
@@ -1752,7 +1754,7 @@ def setter(args):
                                         except IOError:
                                                 log.err( "Cannot create file %s.\n" % (Str_SetArg) )
                                                 sys.exit( 1 )
-                                        upgradable = filter( lambda p: p.isUpgradable, PythonAptQuery.cache )
+                                        upgradable = [p for p in PythonAptQuery.cache if p.isUpgradable]
                                         log.msg( "\nGenerating database of files that are needed for an upgrade.\n" )
                                         
                                         dup_records = []
@@ -1824,15 +1826,15 @@ def main():
         global_options.add_argument("--simulate", dest="simulate", help="Just simulate. Very helpful when debugging",
                             action="store_true" )
         
-	if argparse.__version__ >= 1.1:
-		parser = argparse.ArgumentParser( prog=app_name, description="Offline APT Package Manager" + ' - ' + version,
+        if float(argparse.__version__) >= 1.1:
+                parser = argparse.ArgumentParser( prog=app_name, description="Offline APT Package Manager" + ' - ' + version,
                                           epilog=copyright + " - " + terminal_license, parents=[global_options])
-		parser.add_argument("-v", "--version", action='version', version=version)
-	else:
-		# Remain backward compatible with older argparse versions 
-		parser = argparse.ArgumentParser( prog=app_name, version=app_name + " - " + version,
-				description="Offline APT Package Manager", epilog=copyright + " - " + terminal_license,
-				parents=[global_options])
+                parser.add_argument("-v", "--version", action='version', version=version)
+        else:
+                # Remain backward compatible with older argparse versions 
+                parser = argparse.ArgumentParser( prog=app_name, version=app_name + " - " + version,
+                                description="Offline APT Package Manager", epilog=copyright + " - " + terminal_license,
+                                parents=[global_options])
         
         # We need subparsers for set/get/install
         subparsers = parser.add_subparsers()
@@ -1907,10 +1909,10 @@ def main():
                           help="Fetch bug reports from the BTS", action="store_true" )
         
         parser_get.add_argument("--proxy-host", dest="proxy_host",
-						help="Proxy Host to use", type=str, default=None)
+                                                help="Proxy Host to use", type=str, default=None)
         
         parser_get.add_argument("--proxy-port", dest="proxy_port",
-						help="Proxy port number to use", type=int, default=None)
+                                                help="Proxy port number to use", type=int, default=None)
         
         # INSTALL command options
         parser_install = subparsers.add_parser('install', parents=[global_options])
@@ -1935,15 +1937,15 @@ def main():
         try:
                 # Sanitize the options/arguments
                 #
-        	# Global opts
-        	Bool_Verbose = args.verbose
-        	Bool_TestWindows = args.simulate
+                # Global opts
+                Bool_Verbose = args.verbose
+                Bool_TestWindows = args.simulate
                 
-        	global log
-        	log = AptOfflineLib.Log( Bool_Verbose, lock=True )
-        	log.verbose(str(args) + "\n")
+                global log
+                log = AptOfflineLib.Log( Bool_Verbose, lock=True )
+                log.verbose(str(args) + "\n")
         
-        	args.func(args)
+                args.func(args)
             
         except KeyboardInterrupt:
                 log.err("\nInterrupted by user. Exiting!\n")

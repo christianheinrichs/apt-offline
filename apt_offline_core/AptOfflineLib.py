@@ -23,7 +23,7 @@ import os
 import sys
 
 import threading
-import Queue
+import queue
 
 import zipfile
 import bz2
@@ -66,7 +66,7 @@ class Checksum:
                 data = open( file, 'rb' )
                 if HashType == "sha256":
                         Hash = self.sha256( data )
-		elif HashType == "md5" or HashType == "md5sum":
+                elif HashType == "md5" or HashType == "md5sum":
                         Hash = self.md5( data )
                 else: Hash = None
                 data.close()
@@ -317,7 +317,7 @@ class ProgressBar( object ):
                 self.display()
         
         def display( self ):
-                print "\r%3s /%3s items: %s\r" % ( self.complete, self.items, str( self ) ),
+                print("\r%3s /%3s items: %s\r" % ( self.complete, self.items, str( self ) ), end=' ')
         
         def __str__( self ):
                 #compute display fraction
@@ -514,7 +514,7 @@ class FileMgmt( object ):
                                         #self.duplicate_files = set(self.duplicate_files)
                 
                 len = self.duplicate_files.__len__()
-                print len
+                print(len)
                 for x in range( len ):
                         self.duplicate_files[x].sort()
                 self.duplicate_files.sort()
@@ -524,9 +524,9 @@ class FileMgmt( object ):
                         while number < len - 1:
                                 if x in self.duplicate_files[number] or y in self.duplicate_files[number]:
                                         num += 1
-                                        print num
+                                        print(num)
                                         if num > 1:
-                                                print "Num went 2"
+                                                print("Num went 2")
                                                 self.duplicate_files.pop( number )
                                                 num -= 0
                                 number += 1

@@ -47,4 +47,4 @@ class Ui_SaveZipFile(object):
         self.saveButton.setText(QtGui.QApplication.translate("SaveZipFile", "Save", None, QtGui.QApplication.UnicodeUTF8))
         self.cancelButton.setText(QtGui.QApplication.translate("SaveZipFile", "Cancel", None, QtGui.QApplication.UnicodeUTF8))
 
-import resources_rc
+from . import resources_rc

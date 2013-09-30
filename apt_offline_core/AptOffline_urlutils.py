@@ -22,16 +22,16 @@
 #
 # Version 3.35; see changelog for revision history
 
-import httplib
-import urllib
-import urllib2
+import http.client
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 import getpass
 import re
 import socket
-import commands
+import subprocess
 import os
 import sys
-from AptOffline_reportbug_exceptions import *
+from .AptOffline_reportbug_exceptions import *
 try:
     import webbrowser
 except:
@@ -44,7 +44,7 @@ def decode (page):
     #print page.info().headers
     encoding = page.info().get("Content-Encoding") 
     if encoding in ('gzip', 'x-gzip', 'deflate'):
-        from cStringIO import StringIO
+        from io import StringIO
         # cannot seek in socket descriptors, so must get content now
         content = page.read()
         if encoding == 'deflate':
@@ -54,9 +54,9 @@ def decode (page):
             import gzip
             fp = gzip.GzipFile('', 'rb', 9, StringIO(content))
         # remove content-encoding header
-        headers = httplib.HTTPMessage(StringIO(""))
+        headers = http.client.HTTPMessage(StringIO(""))
         ceheader = re.compile(r"(?i)content-encoding:")
-        for h in page.info().keys():
+        for h in list(page.info().keys()):
             if not ceheader.match(h):
                 headers[h] = page.info()[h]
         newpage = urllib.addinfourl(fp, headers, page.geturl())
@@ -68,24 +68,24 @@ def decode (page):
         return newpage
     return page
 
-class HttpWithGzipHandler (urllib2.HTTPHandler):
+class HttpWithGzipHandler (urllib.request.HTTPHandler):
     "support gzip encoding"
     def http_open (self, req):
-        return decode(urllib2.HTTPHandler.http_open(self, req))
+        return decode(urllib.request.HTTPHandler.http_open(self, req))
 
 if hasattr(httplib, 'HTTPS'):
-    class HttpsWithGzipHandler (urllib2.HTTPSHandler):
+    class HttpsWithGzipHandler (urllib.request.HTTPSHandler):
         "support gzip encoding"
         def http_open (self, req):
-            return decode(urllib2.HTTPSHandler.http_open(self, req))
+            return decode(urllib.request.HTTPSHandler.http_open(self, req))
 
-class handlepasswd(urllib2.HTTPPasswordMgrWithDefaultRealm):
+class handlepasswd(urllib.request.HTTPPasswordMgrWithDefaultRealm):
     def find_user_password(self, realm, authurl):
-        user, password = urllib2.HTTPPasswordMgrWithDefaultRealm.find_user_password(self, realm, authurl)
+        user, password = urllib.request.HTTPPasswordMgrWithDefaultRealm.find_user_password(self, realm, authurl)
         if user is not None:
             return user, password
 
-        user = raw_input('Enter username for %s at %s: ' % (realm, authurl))
+        user = input('Enter username for %s at %s: ' % (realm, authurl))
         password = getpass.getpass(
             "Enter password for %s in %s at %s: " % (user, realm, authurl))
         self.add_password(realm, authurl, user, password)
@@ -101,24 +101,24 @@ def urlopen(url, proxies=None, data=None):
     headers = {'User-Agent': UA_STR,
                'Accept-Encoding' : 'gzip;q=1.0, deflate;q=0.9, identity;q=0.5'}
     
-    req = urllib2.Request(url, data, headers)
+    req = urllib.request.Request(url, data, headers)
 
-    proxy_support = urllib2.ProxyHandler(proxies)
+    proxy_support = urllib.request.ProxyHandler(proxies)
     if _opener is None:
         pwd_manager = handlepasswd()
         handlers = [proxy_support,
-            urllib2.UnknownHandler, HttpWithGzipHandler,
-            urllib2.HTTPBasicAuthHandler(pwd_manager),
-            urllib2.ProxyBasicAuthHandler(pwd_manager),
-            urllib2.HTTPDigestAuthHandler(pwd_manager),
-            urllib2.ProxyDigestAuthHandler(pwd_manager),
-            urllib2.HTTPDefaultErrorHandler, urllib2.HTTPRedirectHandler,
+            urllib.request.UnknownHandler, HttpWithGzipHandler,
+            urllib.request.HTTPBasicAuthHandler(pwd_manager),
+            urllib.request.ProxyBasicAuthHandler(pwd_manager),
+            urllib.request.HTTPDigestAuthHandler(pwd_manager),
+            urllib.request.ProxyDigestAuthHandler(pwd_manager),
+            urllib.request.HTTPDefaultErrorHandler, urllib.request.HTTPRedirectHandler,
         ]
         if hasattr(httplib, 'HTTPS'):
             handlers.append(HttpsWithGzipHandler)
-        _opener = urllib2.build_opener(*handlers)
+        _opener = urllib.request.build_opener(*handlers)
         # print _opener.handlers
-        urllib2.install_opener(_opener)
+        urllib.request.install_opener(_opener)
     
     return _opener.open(req)
 
@@ -131,26 +131,26 @@ def open_url(url, http_proxy=None):
 
     try:
         page = urlopen(url, proxies)
-    except urllib2.HTTPError, x:
+    except urllib.error.HTTPError as x:
         if x.code in (404, 500, 503):
             return None
         else:
             raise
-    except (socket.gaierror, socket.error, urllib2.URLError), x:
+    except (socket.gaierror, socket.error, urllib.error.URLError) as x:
         raise NoNetwork
-    except IOError, data:
+    except IOError as data:
         if data and data[0] == 'http error' and data[1] == 404:
             return None
         else:
             raise NoNetwork
     except TypeError:
-        print >> sys.stderr, "http_proxy environment variable must be formatted as a valid URI"
+        print("http_proxy environment variable must be formatted as a valid URI", file=sys.stderr)
         raise NoNetwork
     return page
 
 def launch_browser(url):
     if not os.system('command -v sensible-browser &> /dev/null'):
-        cmd = 'sensible-browser' + commands.mkarg(url)
+        cmd = 'sensible-browser' + subprocess.mkarg(url)
         os.system(cmd)
         return
     
@@ -161,15 +161,15 @@ def launch_browser(url):
     X11BROWSER = os.environ.get('X11BROWSER', 'mozilla-firefox')
     CONSOLEBROWSER = os.environ.get('CONSOLEBROWSER', 'lynx')
 
-    if (os.environ.has_key('DISPLAY') and
+    if ('DISPLAY' in os.environ and
         not os.system('command -v '+X11BROWSER+' &> /dev/null')):
-        cmd = "%s %s &" % (X11BROWSER, commands.mkarg(url))
+        cmd = "%s %s &" % (X11BROWSER, subprocess.mkarg(url))
     else:
-        cmd = "%s %s" % (CONSOLEBROWSER, commands.mkarg(url))
+        cmd = "%s %s" % (CONSOLEBROWSER, subprocess.mkarg(url))
 
     os.system(cmd)
 
 if __name__ == '__main__':
     page = open_url('http://bugs.debian.org/reportbug')
     content = page.read()
-    print page.info().headers
+    print(page.info().headers)

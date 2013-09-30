@@ -140,4 +140,4 @@ class Ui_downloadOptionsDialog(object):
         self.lblProxyHost.setToolTip(QtGui.QApplication.translate("downloadOptionsDialog", "Cache folder to search for", None, QtGui.QApplication.UnicodeUTF8))
         self.lblProxyHost.setText(QtGui.QApplication.translate("downloadOptionsDialog", "Host", None, QtGui.QApplication.UnicodeUTF8))
 
-import resources_rc
+from . import resources_rc

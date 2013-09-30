@@ -173,4 +173,4 @@ class Ui_CreateProfile(object):
         self.createProfileButton.setText(QtGui.QApplication.translate("CreateProfile", "Create", None, QtGui.QApplication.UnicodeUTF8))
         self.cancelButton.setText(QtGui.QApplication.translate("CreateProfile", "Cancel", None, QtGui.QApplication.UnicodeUTF8))
 
-import resources_rc
+from . import resources_rc

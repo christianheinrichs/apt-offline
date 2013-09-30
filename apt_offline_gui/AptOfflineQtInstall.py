@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import os,sys, thread
+import os,sys, _thread
 from PyQt4 import QtCore, QtGui
 
 from apt_offline_gui.Ui_AptOfflineQtInstall import Ui_AptOfflineQtInstall
@@ -128,9 +128,9 @@ class AptOfflineQtInstall(QtGui.QDialog):
 
         # Popup a Directory selection box
         if self.ui.browseFileFoldercheckBox.isChecked() is True:
-                directory  = QtGui.QFileDialog.getExistingDirectory(self, u'Select the folder')
+                directory  = QtGui.QFileDialog.getExistingDirectory(self, 'Select the folder')
         else:
-                directory = QtGui.QFileDialog.getOpenFileName(self, u'Select the Zip File')
+                directory = QtGui.QFileDialog.getOpenFileName(self, 'Select the Zip File')
         
         # Show the selected file path in the field marked for showing directory path
         self.ui.zipFilePath.setText(directory)

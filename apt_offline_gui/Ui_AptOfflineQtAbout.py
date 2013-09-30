@@ -148,4 +148,4 @@ class Ui_AboutAptOffline(object):
         self.label_2.setText(QtGui.QApplication.translate("AboutAptOffline", "A GUI for apt-offline - an offline APT Package Manager", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButton.setText(QtGui.QApplication.translate("AboutAptOffline", "Close", None, QtGui.QApplication.UnicodeUTF8))
 
-import resources_rc
+from . import resources_rc

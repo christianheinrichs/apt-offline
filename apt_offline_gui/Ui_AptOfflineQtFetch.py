@@ -120,4 +120,4 @@ class Ui_AptOfflineQtFetch(object):
         self.advancedOptionsButton.setText(QtGui.QApplication.translate("AptOfflineQtFetch", "Options", None, QtGui.QApplication.UnicodeUTF8))
         self.saveDatacheckBox.setText(QtGui.QApplication.translate("AptOfflineQtFetch", "Is Directory", None, QtGui.QApplication.UnicodeUTF8))
 
-import resources_rc
+from . import resources_rc

@@ -158,4 +158,4 @@ class Ui_AptOfflineMain(object):
         self.menuHelp_2.setShortcut(QtGui.QApplication.translate("AptOfflineMain", "F1", None, QtGui.QApplication.UnicodeUTF8))
         self.menuAbout.setText(QtGui.QApplication.translate("AptOfflineMain", "About apt-offline", None, QtGui.QApplication.UnicodeUTF8))
 
-import resources_rc
+from . import resources_rc

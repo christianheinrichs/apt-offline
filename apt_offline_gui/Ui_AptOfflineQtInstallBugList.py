@@ -51,4 +51,4 @@ class Ui_AptOfflineQtInstallBugList(object):
         self.closeButton.setText(QtGui.QApplication.translate("AptOfflineQtInstallBugList", "Close", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("AptOfflineQtInstallBugList", "List of bugs", None, QtGui.QApplication.UnicodeUTF8))
 
-import resources_rc
+from . import resources_rc

@@ -24,15 +24,15 @@
 #
 # $Id: debianbts.py,v 1.24.2.7 2006/10/16 17:14:03 lawrencc Exp $
 
-import sgmllib, glob, os, re, rfc822, time, urllib
-from AptOffline_urlutils import open_url
-from AptOffline_reportbug_exceptions import NoNetwork
+import sgmllib, glob, os, re, rfc822, time, urllib.request, urllib.parse, urllib.error
+from .AptOffline_urlutils import open_url
+from .AptOffline_reportbug_exceptions import NoNetwork
 import sys
 
 import mailbox
 import email
 import email.Errors
-import cStringIO
+import io
 import cgi
 
 def msgfactory(fp):
@@ -410,14 +410,14 @@ def cgi_package_url(system, package, archived=False, source=False,
     if version:
         query['version'] = str(version)
     
-    qstr = urllib.urlencode(query)
+    qstr = urllib.parse.urlencode(query)
     #print qstr
     return '%spkgreport.cgi?%s' % (root, qstr)
 
 def package_url(system, package, mirrors=None, source=False,
                 repeatmerged=True):
     btsroot=get_btsroot(system, mirrors)
-    package = urllib.quote_plus(package.lower())
+    package = urllib.parse.quote_plus(package.lower())
     return btsroot+('db/pa/l%s.html' % package) 
 
 def report_url(system, number, mirrors=None):
@@ -710,7 +710,7 @@ def parse_mbox_report(number, url, http_proxy, followups=False):
         return None
 
     # Make this seekable
-    wholefile = cStringIO.StringIO(page.read())
+    wholefile = io.StringIO(page.read())
 
     try:
         page.fp._sock.recv = None
@@ -804,13 +804,13 @@ def get_btsroot(system, mirrors=None):
     if mirrors:
         alternates = SYSTEMS[system].get('mirrors')
         for mirror in mirrors:
-            if alternates.has_key(mirror):
+            if mirror in alternates:
                 return alternates[mirror]
     return SYSTEMS[system].get('btsroot', '')
 
 def get_reports(package, system='debian', mirrors=None, version=None,
                 http_proxy='', archived=False, source=False):
-    if isinstance(package, basestring):
+    if isinstance(package, str):
         if SYSTEMS[system].get('cgiroot'):
             result = get_cgi_reports(package, system, http_proxy, archived,
                                      source, version=version)

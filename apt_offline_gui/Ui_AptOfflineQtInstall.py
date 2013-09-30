@@ -95,4 +95,4 @@ class Ui_AptOfflineQtInstall(object):
         self.bugReportsButton.setText(QtGui.QApplication.translate("AptOfflineQtInstall", "Bug Reports", None, QtGui.QApplication.UnicodeUTF8))
         self.browseFileFoldercheckBox.setText(QtGui.QApplication.translate("AptOfflineQtInstall", "Is Directory", None, QtGui.QApplication.UnicodeUTF8))
 
-import resources_rc
+from . import resources_rc
