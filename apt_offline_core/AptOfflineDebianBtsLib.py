@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 #
 # debianbts.py - Routines to deal with the debbugs web pages
 #
@@ -42,7 +43,7 @@ def msgfactory(fp):
         # Don't return None since that will
         # stop the mailbox iterator
         return ''
-    
+
 class Error(Exception):
     pass
 
@@ -149,7 +150,7 @@ def convert_severity(severity, type='debbugs'):
 debother = {
     'base' : 'General bugs in the base system',
 # Actually a real package, but most people don't have boot-floppies installed for good reason
-#    'boot-floppy' : '(Obsolete, please use boot-floppies instead.)',
+#   'boot-floppy' : '(Obsolete, please use boot-floppies instead.)',
     'boot-floppies' : 'Bugs in the woody installation subsystem',
     'bugs.debian.org' : 'The bug tracking system, @bugs.debian.org',
     'cdimage.debian.org' : 'CD Image issues',
@@ -160,7 +161,7 @@ debother = {
     'general' : 'General problems (e.g., that many manpages are mode 755)',
     'install' : 'Problems with the sarge installer.',
     'installation' : 'General installation problems not covered otherwise.',
-#    'kernel' : '(Obsolete, please use "linux-image" instead.)',
+#   'kernel' : '(Obsolete, please use "linux-image" instead.)',
     'linux-image' : 'Problems with the Linux kernel, or the kernel shipped with Debian',
     'listarchives' :  'Problems with the WWW mailing list archives',
     'lists.debian.org' : 'The mailing lists, debian-*@lists.debian.org.',
@@ -397,7 +398,7 @@ def cgi_package_url(system, package, archived=False, source=False,
                     repeatmerged=True, version=None):
     root = SYSTEMS[system].get('cgiroot')
     if not root: return None
-    
+
     #package = urllib.quote_plus(package.lower())
     if source:
         query = {'src' : package.lower()}
@@ -409,7 +410,7 @@ def cgi_package_url(system, package, archived=False, source=False,
 
     if version:
         query['version'] = str(version)
-    
+
     qstr = urllib.parse.urlencode(query)
     #print qstr
     return '%spkgreport.cgi?%s' % (root, qstr)
@@ -447,7 +448,7 @@ def parse_bts_url(url):
 # Dynamically add any additional systems found
 for origin in glob.glob('/etc/dpkg/origins/*'):
     try:
-        fp = file(origin)
+        fp = open(origin)
         system = os.path.basename(origin)
         SYSTEMS[system] = SYSTEMS.get(system, { 'otherpkgs' : {},
                                                 'query-dpkg' : True,
@@ -576,21 +577,21 @@ class BTSParser(sgmllib.SGMLParser):
             else:
                 trailinfo = self.save_end()
 
-            match = re.search(r'fixed:\s+([\w.+~-]+(\s+[\w.+~:-]+)?)', trailinfo)
+            match = re.search(b'fixed:\s+([\w.+~-]+(\s+[\w.+~:-]+)?)', trailinfo)
             if match:
                 title = self.bugtitle
-                bits = re.split(r':\s+', title, 1)
+                bits = re.split(b':\s+', title, 1)
                 if len(bits) > 1:
                     buginfo = '%s [FIXED %s]: %s' % (
                         bits[0], match.group(1), bits[1])
                 else:
                     if title.endswith(':'):
                         title = title[:-1]
-                    
+
                     buginfo = '%s [FIXED %s]' % (title, match.group(1))
             else:
                 buginfo = self.bugtitle
-            
+
             self.lidatalist.append(buginfo)
             self.bugcount += 1
 
@@ -613,7 +614,7 @@ class BTSParser(sgmllib.SGMLParser):
             if not self.endh2: return
         else:
             if self.cgi and self.preblock: return
-        
+
         self.save_bgn()
 
     def end_pre(self):
@@ -634,28 +635,28 @@ class BTSParser(sgmllib.SGMLParser):
 
         newhierarchy = []
         fixed = []
-        fixedfinder = re.compile(r'\[FIXED ([^\]]+)\]')
-        resolvedfinder = re.compile(r'Resolved')
+        fixedfinder = re.compile(b'\[FIXED ([^\]]+)\]')
+        resolvedfinder = re.compile(b'Resolved')
 
         for (title, buglist) in self.hierarchy:
             if 'Resolved' in title:
                 newhierarchy.append( (title, buglist) )
                 continue
-            
+
             bugs = []
             for bug in buglist:
                 if fixedfinder.search(bug):
                     fixed.append(bug)
                 else:
                     bugs.append(bug)
-                    
+
             if bugs:
                 title = ' '.join(title.split()[:-2])
                 if len(bugs) != 1:
                     title += ' (%d bugs)' % len(bugs)
                 else:
                     title += ' (1 bug)'
-                
+
                 newhierarchy.append( (title, bugs) )
 
         if fixed:
@@ -763,17 +764,17 @@ def parse_mbox_report(number, url, http_proxy, followups=False):
 def get_cgi_reports(package, system='debian', http_proxy='', archived=False,
                     source=False, version=None):
     try:
-	    page = open_url(cgi_package_url(system, package, archived, source,
+        page = open_url(cgi_package_url(system, package, archived, source,
                                     version=version), http_proxy)
     except NoNetwork:
-	    page = None
+        page = None
     if not page:
         return (0, None, None)
 
     #content = page.read()
     #if 'Maintainer' not in content:
     #    return (0, None, None)
-    
+
     parser = BTSParser(cgi=True)
     for line in page:
         parser.feed(line)
@@ -847,7 +848,7 @@ def get_reports(package, system='debian', mirrors=None, version=None,
             title, body = result
             this_hierarchy.append(title)
             #print title
-    
+
     title = "Multiple bug reports"
     bugcount = len(this_hierarchy)
     hierarchy = [('Reports', this_hierarchy)]
@@ -866,7 +867,7 @@ def get_report(number, system='debian', mirrors=None,
         result = get_cgi_report(number, system, http_proxy, archived,
                                 followups)
         if result: return result
-        
+
     url = report_url(system, number, mirrors)
     if not url: return None
 

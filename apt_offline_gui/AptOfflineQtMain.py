@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import sys, os
 from PyQt4 import QtCore, QtGui
 
@@ -13,17 +15,17 @@ class AptOfflineQtMain(QtGui.QMainWindow):
         QtGui.QWidget.__init__(self, parent)
         self.ui = Ui_AptOfflineMain()
         self.ui.setupUi(self)
-        
+
         # Configure the various actions
         self.ConfigureCreateProfile()
         self.ConfigureDownload()
         self.ConfigureInstall()
         self.ConfigureAbout()
         self.ConfigureMenuExit()
-        
+
         # Configure Hover over Buttons for Help
         self.CreateButtonHoverHelp()
-        
+
     def ConfigureCreateProfile(self):
         QtCore.QObject.connect(self.ui.menuCreateProfile, QtCore.SIGNAL("triggered()"), self.CreateProfile)
         QtCore.QObject.connect(self.ui.createProfileButton,QtCore.SIGNAL("clicked()"), self.CreateProfile)
@@ -31,7 +33,7 @@ class AptOfflineQtMain(QtGui.QMainWindow):
         self.createProfileDialog = AptOfflineQtCreateProfile()
         # setup hover hack
         self.ui.createProfileButton.installEventFilter(self)
-        
+
     def ConfigureDownload(self):
         QtCore.QObject.connect(self.ui.menuDownload, QtCore.SIGNAL("triggered()"), self.DownloadPackagesUpgrades)
         QtCore.QObject.connect(self.ui.downloadButton, QtCore.SIGNAL("clicked()"), self.DownloadPackagesUpgrades)
@@ -39,7 +41,7 @@ class AptOfflineQtMain(QtGui.QMainWindow):
         self.createDownloadDialog = AptOfflineQtFetch()
         # setup hover hack
         self.ui.downloadButton.installEventFilter(self)
-    
+
     def ConfigureInstall(self):
         QtCore.QObject.connect(self.ui.menuInstall, QtCore.SIGNAL("triggered()"), self.InstallPackagesUpgrades)
         QtCore.QObject.connect(self.ui.restoreButton, QtCore.SIGNAL("clicked()"), self.InstallPackagesUpgrades)
@@ -52,7 +54,7 @@ class AptOfflineQtMain(QtGui.QMainWindow):
         QtCore.QObject.connect(self.ui.menuAbout, QtCore.SIGNAL("triggered()"), self.ShowAbout)
         # Create an object for About Dialog
         self.createAboutDialog = AptOfflineQtAbout()
-        
+
     def ConfigureMenuExit(self):
         QtCore.QObject.connect(self.ui.menuExit, QtCore.SIGNAL("triggered()"), self.ExitApp)
         QtCore.QObject.connect(self.ui.exitButton, QtCore.SIGNAL("clicked()"), self.ExitApp)
@@ -66,12 +68,12 @@ class AptOfflineQtMain(QtGui.QMainWindow):
                 self.ui.descriptionField.setText("Once you are on a internet connected machine, use this to download packages as per your signature file.")
             if target.objectName() == 'restoreButton':
                 self.ui.descriptionField.setText("Once you've downloaded all the packages, click here to install them on the offline machine.")
-                
+
         if event.type() == QtCore.QEvent.HoverLeave:
             self.ui.descriptionField.setText("Hover your mouse over the buttons to get the description.")
         return False
-        
-    
+
+
     def CreateProfile(self):
         if os.geteuid() != 0:
                 QtGui.QMessageBox.critical(self, "Error", "You need to run with root priviliges")
@@ -91,7 +93,7 @@ class AptOfflineQtMain(QtGui.QMainWindow):
         #        return
         # Code for creating Modal Dialog for Installing Packages/Upgrades
         self.createInstallDialog.show()
-    
+
     def ShowAbout(self):
         # Code for showing Model Dialog for About Application
         self.createAboutDialog.show()

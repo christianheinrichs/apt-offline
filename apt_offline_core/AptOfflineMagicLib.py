@@ -1,4 +1,4 @@
-#!/usr/bin/env python 
+#!/usr/bin/env python3
 
 ############################################################################
 #    This program is free software; you can redistribute it and/or modify  #
@@ -31,7 +31,7 @@ magic.py
                          binary or text data, a description of
                          what the data is will be returned.
 
-     magic.file(filename): returns a description of what the file
+     magic.open(filename): returns a description of what the file
                            'filename' contains.
 '''
 
@@ -915,18 +915,18 @@ def strToNum(n):
     n = n[1:]
     while len(n) > 0:
       l = n[len(n) - 1]
-      if ord(l) < 48 or ord(l) > 57: break
+      if l < 48 or l > 57: break
       val = val + int(l) * col
       col = col * 8
       n = n[:len(n)-1]
   else:
     val = int(n)
   return val
-       
+
 def unescape(s):
   # replace string escape sequences
   while 1:
-    m = re.search(r'\\', s)
+    m = re.search(b'\\', s)
     if not m: break
     x = m.start()+1
     if m.end() == len(s): 
@@ -940,10 +940,10 @@ def unescape(s):
       # hex ascii value
       c = chr(strToNum(s[x:x+3]))
       s = s[:x-1] + c + s[x+3:]
-    elif ord(s[x]) > 47 and ord(s[x]) < 58:
+    elif s[x] > 47 and s[x] < 58:
       # octal ascii value
       end = x
-      while (ord(s[end]) > 47 and ord(s[end]) < 58):
+      while (s[end] > 47 and s[end] < 58):
         end = end + 1
         if end > len(s) - 1: break
       c = chr(strToNum(s[x-1:end]))
@@ -970,7 +970,7 @@ class magicTest:
     self.op = op
     self.mask = mask
     self.value = value
-      
+
 
   def test(self, data):
     if self.mask:
@@ -1010,27 +1010,27 @@ class magicTest:
       elif self.type == 'belong':
         [data] = struct.unpack('>l', data[self.offset : self.offset + 4])
       else:
-        #print 'UNKNOWN TYPE: ' + self.type
+        # print 'UNKNOWN TYPE: ' + self.type
         pass
     except:
       return None
-  
-#    print str([self.msg, self.value, data])
+
+    # print str([self.msg, self.value, data])
     return self.test(data)
-    
+
 
 def load(file):
   global magicNumbers
   lines = open(file).readlines()
   last = { 0: None }
   for line in lines:
-    if re.match(r'\s*#', line):
+    if re.match(b'\s*#', line):
       # comment
       continue
     else:
       # split up by space delimiters, and remove trailing space
       line = string.rstrip(line)
-      line = re.split(r'\s*', line)
+      line = re.split(b'\s*', line)
       if len(line) < 3:
         # bad line
         continue
@@ -1092,18 +1092,18 @@ def whatis(data):
   for test in magicNumbers:
      m = test.compare(data)
      if m: return m
-  # no matching, magic number. is it binary or text?
+  # no matching, magic number. Is it binary or text?
   for c in data:
-    if ord(c) > 128:
+    if c > 128:
       return 'data'
-  # its ASCII, now do text tests
+  # it's ASCII, now do text tests
   if string.find('The', data, 0, 8192) > -1:
     return 'English text'
   if string.find('def', data, 0, 8192) > -1:
     return 'Python Source'
   return 'ASCII text'
-      
-    
+
+
 def file(file):
   try:
     return whatis(open(file, 'r').read(8192))
@@ -1112,7 +1112,7 @@ def file(file):
       return 'directory'
     else:
       raise e
-  
+
 
 #### BUILD DATA ####
 #load('mime-magic')
@@ -1128,7 +1128,7 @@ for m in magic:
 if __name__ == '__main__':
   import sys
   for arg in sys.argv[1:]:
-    msg = file(arg)
+    msg = open(arg)
     if msg:
       print(arg + ': ' + msg)
     else:

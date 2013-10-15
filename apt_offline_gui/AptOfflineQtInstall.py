@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # -*- coding: utf-8 -*-
 import os,sys, _thread
 from PyQt4 import QtCore, QtGui
@@ -54,41 +56,41 @@ class Worker(QtCore.QThread):
                 ''' nothing to do '''
         else:
             self.emit (QtCore.SIGNAL('output(QString)'), guicommon.style(text,'red'))
-                            
+
     def flush(self):
         ''' nothing to do :D '''
-        
+
     def quit(self):
         self.emit (QtCore.SIGNAL('finished()'))
-        
-        
+
+
 class AptOfflineQtInstall(QtGui.QDialog):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.ui = Ui_AptOfflineQtInstall()
         self.ui.setupUi(self)
-        
+
         # Connect the clicked signal of the Browse button to it's slot
         QtCore.QObject.connect(self.ui.browseFilePathButton, QtCore.SIGNAL("clicked()"),
                         self.popupDirectoryDialog )
-                        
+
         # Connect the clicked signal of the Save to it's Slot - accept
         QtCore.QObject.connect(self.ui.startInstallButton, QtCore.SIGNAL("clicked()"),
                         self.StartInstall )
-                        
+
         # Connect the clicked signal of the Cancel to it's Slot - reject
         QtCore.QObject.connect(self.ui.cancelButton, QtCore.SIGNAL("clicked()"),
                         self.reject )
-        
+
         QtCore.QObject.connect(self.ui.bugReportsButton, QtCore.SIGNAL("clicked()"),
                         self.showBugReports )
-        
+
         QtCore.QObject.connect(self.ui.zipFilePath, QtCore.SIGNAL("editingFinished()"),
                         self.ControlStartInstallBox )
 
         QtCore.QObject.connect(self.ui.zipFilePath, QtCore.SIGNAL("textChanged(QString)"),
                         self.ControlStartInstallBox )
-        
+
         self.worker = Worker(parent=self)
         QtCore.QObject.connect(self.worker, QtCore.SIGNAL("output(QString)"),
                         self.updateLog )
@@ -100,7 +102,7 @@ class AptOfflineQtInstall(QtGui.QDialog):
                         self.finishedWork )
         QtCore.QObject.connect(self.worker, QtCore.SIGNAL("terminated()"),
                         self.finishedWork )
-        
+
     def StartInstall(self):
         # gui validation
         # Clear the consoleOutputHolder
@@ -131,20 +133,20 @@ class AptOfflineQtInstall(QtGui.QDialog):
                 directory  = QtGui.QFileDialog.getExistingDirectory(self, 'Select the folder')
         else:
                 directory = QtGui.QFileDialog.getOpenFileName(self, 'Select the Zip File')
-        
+
         # Show the selected file path in the field marked for showing directory path
         self.ui.zipFilePath.setText(directory)
         self.ui.zipFilePath.setFocus()
-    
+
     def ControlStartInstallBox(self):
         if self.ui.zipFilePath.text().isEmpty():
             self.ui.startInstallButton.setEnabled(False)
-	    # We do the same for bug reports button
+        # We do the same for bug reports button
             self.ui.bugReportsButton.setEnabled(False)
         else:
             self.ui.startInstallButton.setEnabled(True)
             self.ui.bugReportsButton.setEnabled(True)
-            
+
     def updateLog(self,text):
         guicommon.updateInto (self.ui.rawLogHolder,text)
 
@@ -165,7 +167,7 @@ class AptOfflineQtInstall(QtGui.QDialog):
         guicommon.updateInto (self.ui.rawLogHolder,
             guicommon.style("Finished syncting updates/packages","green_fin"))
         self.ui.progressStatusDescription.setText("Finished Syncing")
-        
+
     def disableActions(self):
         self.ui.cancelButton.setEnabled(False)
         self.ui.startInstallButton.setEnabled(False)

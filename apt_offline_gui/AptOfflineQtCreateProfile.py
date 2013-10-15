@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # -*- coding: utf-8 -*-
 import sys,os
 from PyQt4 import QtCore, QtGui
@@ -13,28 +15,28 @@ class AptOfflineQtCreateProfile(QtGui.QDialog):
         QtGui.QWidget.__init__(self, parent)
         self.ui = Ui_CreateProfile()
         self.ui.setupUi(self)
-        
+
         # Connect the clicked signal of the Browse button to it's slot
         QtCore.QObject.connect(self.ui.browseFilePathButton, QtCore.SIGNAL("clicked()"),
                         self.popupDirectoryDialog )
-                        
+
         # Connect the clicked signal of the Save to it's Slot - accept
         QtCore.QObject.connect(self.ui.createProfileButton, QtCore.SIGNAL("clicked()"),
                         self.CreateProfile )
-                        
+
         # Connect the clicked signal of the Cancel to it's Slot - reject
         QtCore.QObject.connect(self.ui.cancelButton, QtCore.SIGNAL("clicked()"),
                         self.reject )
-        
+
         # Disable or Enable the Package List field
         QtCore.QObject.connect(self.ui.installPackagesCheckBox, QtCore.SIGNAL("toggled(bool)"),
                         self.PackageListFieldStatus )
-        
+
     def PackageListFieldStatus(self):
         # If Install Packages Box is selected
         self.isFieldChecked = self.ui.installPackagesCheckBox.isChecked()
         self.ui.packageList.setEnabled(self.isFieldChecked)
-    
+
     def CreateProfile(self):
         # Is the Update requested
         self.updateChecked = self.ui.updateCheckBox.isChecked()
@@ -45,9 +47,9 @@ class AptOfflineQtCreateProfile(QtGui.QDialog):
 
         # Clear the consoleOutputHolder
         self.ui.consoleOutputHolder.setText("")
-        
+
         self.filepath = str(self.ui.profileFilePath.text())
-        
+
         if os.path.exists(os.path.dirname(self.filepath)) == False:
             if (len(self.filepath) == 0):
                 self.ui.consoleOutputHolder.setText ( \
@@ -56,7 +58,7 @@ class AptOfflineQtCreateProfile(QtGui.QDialog):
                 self.ui.consoleOutputHolder.setText ( \
                     guicommon.style("Could not access  %s" % self.filepath,'red'))
             return
-        
+
         # If atleast one is requested
         if self.updateChecked or self.upgradeChecked or self.installChecked:
             if self.installChecked:
@@ -79,8 +81,8 @@ class AptOfflineQtCreateProfile(QtGui.QDialog):
                 self.ui.cancelButton.setIcon(QtGui.QIcon())
         else:
             pass
-        
-    
+
+
     def popupDirectoryDialog(self):
         # Popup a Directory selection box
         signatureFilePath = os.path.join (os.path.expanduser("~"), "/Desktop/"+"apt-offline.sig")

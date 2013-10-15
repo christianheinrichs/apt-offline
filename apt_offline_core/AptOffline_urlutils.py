@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 #
 # urlutils.py - Simplified urllib handling
 #
@@ -55,7 +56,7 @@ def decode (page):
             fp = gzip.GzipFile('', 'rb', 9, StringIO(content))
         # remove content-encoding header
         headers = http.client.HTTPMessage(StringIO(""))
-        ceheader = re.compile(r"(?i)content-encoding:")
+        ceheader = re.compile(b"(?i)content-encoding:")
         for h in list(page.info().keys()):
             if not ceheader.match(h):
                 headers[h] = page.info()[h]
@@ -90,7 +91,7 @@ class handlepasswd(urllib.request.HTTPPasswordMgrWithDefaultRealm):
             "Enter password for %s in %s at %s: " % (user, realm, authurl))
         self.add_password(realm, authurl, user, password)
         return user, password
-        
+
 _opener = None
 def urlopen(url, proxies=None, data=None):
     global _opener
@@ -100,7 +101,7 @@ def urlopen(url, proxies=None, data=None):
 
     headers = {'User-Agent': UA_STR,
                'Accept-Encoding' : 'gzip;q=1.0, deflate;q=0.9, identity;q=0.5'}
-    
+
     req = urllib.request.Request(url, data, headers)
 
     proxy_support = urllib.request.ProxyHandler(proxies)
@@ -119,7 +120,7 @@ def urlopen(url, proxies=None, data=None):
         _opener = urllib.request.build_opener(*handlers)
         # print _opener.handlers
         urllib.request.install_opener(_opener)
-    
+
     return _opener.open(req)
 
 # Global useful URL opener; returns None if the page is absent, otherwise
@@ -153,7 +154,7 @@ def launch_browser(url):
         cmd = 'sensible-browser' + subprocess.mkarg(url)
         os.system(cmd)
         return
-    
+
     if webbrowser:
         webbrowser.open(url)
         return

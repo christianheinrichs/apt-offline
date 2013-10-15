@@ -1,27 +1,29 @@
+#!/usr/bin/env python3
+
 # -*- coding: utf-8 -*-
 from PyQt4 import QtCore, QtGui
 
 class SetterArgs():
-    
+
     def __init__(self, filename, update, upgrade, install_packages, simulate=False):
         self.set = filename
-        
+
         # self.set_update is of type boolean
         self.set_update = update
-        
+
         # self.set_upgrade can be either True or False
         self.set_upgrade = upgrade
         self.upgrade_type = "upgrade"
-        
+
         # Should be set to None for disabling or Tuple for activating
         self.set_install_packages = install_packages
-        
-        # To be implmented later
+
+        # To be implemented later
         self.src_build_dep = False
         self.set_install_src_packages = None
         self.set_install_release = None
         self.simulate=simulate
-    
+
     def __str__(self):
         print("self.set=",self.set)
         print("self.set_update=",self.set_update)
@@ -29,9 +31,9 @@ class SetterArgs():
         print("self.upgrade_type=",self.upgrade_type)
         print("self.set_install_packages=",self.set_install_packages)
         print("self.simulate=", self.simulate)
-        
+
         return ""
-    
+
 class GetterArgs():
 
     def __init__(self, filename=None, bundle_file=None, socket_timeout=30, \
@@ -49,10 +51,10 @@ class GetterArgs():
         self.deb_bugs = deb_bugs
         self.download_dir = download_dir
         self.cache_dir = cache_dir
-        
+
         self.proxy_host = proxy_host
         self.proxy_port = proxy_port
-        
+
         self.progress_bar = progress_bar
         self.progress_label = progress_label
 
@@ -66,7 +68,7 @@ class GetterArgs():
         print("self.deb_bugs=",self.deb_bugs)
         print("self.download_dir=",self.download_dir)
         print("self.cache_dir=",self.cache_dir)
-        
+
         return ""
 
 '''
@@ -89,6 +91,6 @@ class InstallerArgs():
         self.skip_bug_reports = skip_bug_reports
         self.allow_unauthenticated = allow_unauthenticated
         self.install_src_path = install_src_path
-        
+
         self.progress_bar = progress_bar
         self.progress_label = progress_label

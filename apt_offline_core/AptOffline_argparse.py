@@ -212,8 +212,8 @@ class HelpFormatter(object):
         self._root_section = self._Section(self, None)
         self._current_section = self._root_section
 
-        self._whitespace_matcher = _re.compile(r'\s+')
-        self._long_break_matcher = _re.compile(r'\n\n\n+')
+        self._whitespace_matcher = _re.compile(b'\s+')
+        self._long_break_matcher = _re.compile(b'\n\n\n+')
 
     # ===============================
     # Section and indentation methods
@@ -495,10 +495,10 @@ class HelpFormatter(object):
         # clean up separators for mutually exclusive groups
         open = r'[\[(]'
         close = r'[\])]'
-        text = _re.sub(r'(%s) ' % open, r'\1', text)
-        text = _re.sub(r' (%s)' % close, r'\1', text)
-        text = _re.sub(r'%s *%s' % (open, close), r'', text)
-        text = _re.sub(r'\(([^|]*)\)', r'\1', text)
+        text = _re.sub(b'(%s) ' % open, r'\1', text)
+        text = _re.sub(b' (%s)' % close, r'\1', text)
+        text = _re.sub(b'%s *%s' % (open, close), r'', text)
+        text = _re.sub(b'\(([^|]*)\)', r'\1', text)
         text = text.strip()
 
         # return the text
@@ -519,7 +519,7 @@ class HelpFormatter(object):
         action_width = help_position - self._current_indent - 2
         action_header = self._format_action_invocation(action)
 
-        # ho nelp; start on same line and add a final newline
+        # no help; start on same line and add a final newline
         if not action.help:
             tup = self._current_indent, '', action_header
             action_header = '%*s%s\n' % tup
@@ -848,7 +848,7 @@ class _StoreAction(Action):
                              'true or store const may be more appropriate')
         if const is not None and nargs != OPTIONAL:
             raise ValueError('nargs must be %r to supply const' % OPTIONAL)
-        super(_StoreAction, self).__init__(
+        super().__init__(
             option_strings=option_strings,
             dest=dest,
             nargs=nargs,
@@ -874,7 +874,7 @@ class _StoreConstAction(Action):
                  required=False,
                  help=None,
                  metavar=None):
-        super(_StoreConstAction, self).__init__(
+        super().__init__(
             option_strings=option_strings,
             dest=dest,
             nargs=0,
@@ -895,7 +895,7 @@ class _StoreTrueAction(_StoreConstAction):
                  default=False,
                  required=False,
                  help=None):
-        super(_StoreTrueAction, self).__init__(
+        super().__init__(
             option_strings=option_strings,
             dest=dest,
             const=True,
@@ -912,7 +912,7 @@ class _StoreFalseAction(_StoreConstAction):
                  default=True,
                  required=False,
                  help=None):
-        super(_StoreFalseAction, self).__init__(
+        super().__init__(
             option_strings=option_strings,
             dest=dest,
             const=False,
@@ -940,7 +940,7 @@ class _AppendAction(Action):
                              'the append const action may be more appropriate')
         if const is not None and nargs != OPTIONAL:
             raise ValueError('nargs must be %r to supply const' % OPTIONAL)
-        super(_AppendAction, self).__init__(
+        super().__init__(
             option_strings=option_strings,
             dest=dest,
             nargs=nargs,
@@ -968,7 +968,7 @@ class _AppendConstAction(Action):
                  required=False,
                  help=None,
                  metavar=None):
-        super(_AppendConstAction, self).__init__(
+        super().__init__(
             option_strings=option_strings,
             dest=dest,
             nargs=0,
@@ -992,7 +992,7 @@ class _CountAction(Action):
                  default=None,
                  required=False,
                  help=None):
-        super(_CountAction, self).__init__(
+        super().__init__(
             option_strings=option_strings,
             dest=dest,
             nargs=0,
@@ -1012,7 +1012,7 @@ class _HelpAction(Action):
                  dest=SUPPRESS,
                  default=SUPPRESS,
                  help=None):
-        super(_HelpAction, self).__init__(
+        super().__init__(
             option_strings=option_strings,
             dest=dest,
             default=default,
@@ -1032,7 +1032,7 @@ class _VersionAction(Action):
                  dest=SUPPRESS,
                  default=SUPPRESS,
                  help=None):
-        super(_VersionAction, self).__init__(
+        super().__init__(
             option_strings=option_strings,
             dest=dest,
             default=default,
@@ -1054,7 +1054,7 @@ class _SubParsersAction(Action):
     class _ChoicesPseudoAction(Action):
 
         def __init__(self, name, help):
-            sup = super(_SubParsersAction._ChoicesPseudoAction, self)
+            sup = super()
             sup.__init__(option_strings=[], dest=name, help=help)
 
     def __init__(self,
@@ -1070,7 +1070,7 @@ class _SubParsersAction(Action):
         self._name_parser_map = {}
         self._choices_actions = []
 
-        super(_SubParsersAction, self).__init__(
+        super().__init__(
             option_strings=option_strings,
             dest=dest,
             nargs=PARSER,
@@ -1160,9 +1160,9 @@ class FileType(object):
         args_str = ', '.join([repr(arg) for arg in args if arg is not None])
         return '%s(%s)' % (type(self).__name__, args_str)
 
-# ===========================
+# ===============================
 # Optional and Positional Parsing
-# ===========================
+# ===============================
 
 class Namespace(_AttributeHolder):
     """Simple object for storing attributes.
@@ -1192,7 +1192,7 @@ class _ActionsContainer(object):
                  prefix_chars,
                  argument_default,
                  conflict_handler):
-        super(_ActionsContainer, self).__init__()
+        super().__init__()
 
         self.description = description
         self.argument_default = argument_default
@@ -1230,7 +1230,7 @@ class _ActionsContainer(object):
         self._defaults = {}
 
         # determines whether an "option" looks like a negative number
-        self._negative_number_matcher = _re.compile(r'^-\d+$|^-\d*\.\d+$')
+        self._negative_number_matcher = _re.compile(b'^-\d+$|^-\d*\.\d+$')
 
         # whether or not there are any optionals that look like negative
         # numbers -- uses a list so it can be shared and edited
@@ -1439,9 +1439,9 @@ class _ActionsContainer(object):
 
     def _get_handler(self):
         # determine function from conflict handler string
-        handler_func_name = '_handle_conflict_%s' % self.conflict_handler
+        handler__name__ = '_handle_conflict_%s' % self.conflict_handler
         try:
-            return getattr(self, handler_func_name)
+            return getattr(self, handler__name__)
         except AttributeError:
             msg = _('invalid conflict_resolution value: %r')
             raise ValueError(msg % self.conflict_handler)
@@ -1490,7 +1490,7 @@ class _ArgumentGroup(_ActionsContainer):
         update('conflict_handler', container.conflict_handler)
         update('prefix_chars', container.prefix_chars)
         update('argument_default', container.argument_default)
-        super_init = super(_ArgumentGroup, self).__init__
+        super_init = super().__init__
         super_init(description=description, **kwargs)
 
         # group attributes
@@ -1506,19 +1506,19 @@ class _ArgumentGroup(_ActionsContainer):
             container._has_negative_number_optionals
 
     def _add_action(self, action):
-        action = super(_ArgumentGroup, self)._add_action(action)
+        action = super()._add_action(action)
         self._group_actions.append(action)
         return action
 
     def _remove_action(self, action):
-        super(_ArgumentGroup, self)._remove_action(action)
+        super()._remove_action(action)
         self._group_actions.remove(action)
 
 
 class _MutuallyExclusiveGroup(_ArgumentGroup):
 
     def __init__(self, container, required=False):
-        super(_MutuallyExclusiveGroup, self).__init__(container)
+        super().__init__(container)
         self.required = required
         self._container = container
 
@@ -1575,7 +1575,7 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
                 """"add_argument(..., action='version', version="N", ...)" """
                 """instead""", DeprecationWarning)
 
-        superinit = super(ArgumentParser, self).__init__
+        superinit = super().__init__
         superinit(description=description,
                   prefix_chars=prefix_chars,
                   argument_default=argument_default,
@@ -2109,7 +2109,7 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
                     tup = action, option_string, explicit_arg
                     result.append(tup)
 
-        # single character options can be concatenated with their arguments
+        # single character options can be concatenated with their arguments,
         # but multiple character options always have to have their argument
         # separate
         elif option_string[0] in chars and option_string[1] not in chars:
@@ -2256,7 +2256,7 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
     def _check_value(self, action, value):
         # converted value must be one of the choices (if specified)
         if action.choices is not None and value not in action.choices:
-            tup = value, ', '.join(map(repr, action.choices))
+            tup = value, ', '.join(list(map(repr, action.choices))) # Quick fix: list(map())
             msg = _('invalid choice: %r (choose from %s)') % tup
             raise ArgumentError(action, msg)
 

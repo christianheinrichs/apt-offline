@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # -*- coding: utf-8 -*-
 
 # Form implementation generated from reading ui file 'AptOfflineQtSaveZip.ui'
