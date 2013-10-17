@@ -29,7 +29,7 @@ Changes at this point:
 TypeError: lstrip() takes no keyword arguments
 ````
 
-As I could not find out the real cause of this issue, I found out two solutions mentioned in [this](https://github.com/codingaround/apt-offline-python3-dev/apt_offline_core/bugfix_examples.py) file.  
+As I could not find out the real cause of this issue, I found out two solutions mentioned in [this](https://github.com/codingaround/apt-offline-python3-dev/blob/master/apt_offline_core/bugfix_examples.py) file.  
 The first solution was implemented.
 
 In my research of this bug most clues point to a [question](http://stackoverflow.com/q/11716687) posted on Stack Overflow.  
