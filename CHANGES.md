@@ -23,12 +23,7 @@ Commit [70b646d8fb7b562b3a5ce0f009b9500a8ab7eae7](https://github.com/codingaroun
 
 Commit [0a81e988b2892431163de115f20e41e5e4245902](https://github.com/codingaround/apt-offline-python3-dev/commit/0a81e988b2892431163de115f20e41e5e4245902) submitted on Oct 17, 2013:
 
-<<<<<<< HEAD
 - Fixed critical bug where `python3 apt-offline get apt-offline.sig` and `./apt-offline get apt-offline.sig` would always result in:
-=======
-As I could not find out the real cause of this issue, I found out two solutions mentioned in [this](https://github.com/codingaround/apt-offline-python3-dev/blob/master/apt_offline_core/bugfix_examples.py) file.  
-The first solution was implemented.
->>>>>>> upstream/master
 
     ````
       Traceback (most recent call last):
@@ -86,7 +81,7 @@ The first solution was implemented.
 
 - Moved `string.lstrip()` and `string.rstrip()` to `str.lstrip()` and `str.rstrip()`
 
-Commit []() submitted on Oct 27, 2013:
+Commit [beed00f005ccf67d34b04363fcb2a4e388a379b8](https://github.com/codingaround/apt-offline-python3-dev/commit/beed00f005ccf67d34b04363fcb2a4e388a379b8) submitted on Oct 27, 2013:
 
 - Modified code with optional 2to3 fixers `buffer`, `idioms`, `set_literal` and `ws_comma`
 - Corrected `xxx_todo_changeme` leftover by 2to3 in some files
@@ -94,11 +89,11 @@ Commit []() submitted on Oct 27, 2013:
 - Switched back `AptOfflineMagicLib.open` to `AptOfflineMagicLib.file`
 - Fixed bug printing the error:
   ````
-  Couldn't find debianbts module.
+  Couldn't find debianbts module.  
   Cannot fetch Bug Reports.
   ````
 - Replaced [sgmllib](http://docs.python.org/2.7/library/sgmllib.html) module with [html.parser](http://docs.python.org/3/library/html.parser.html).  
-  This is more a problem than a fix, because I hoped that `html.parser.HTMLPARSER` would be a proper replacement for a SGML parser taking care of malformed HTTP.
+  This is more a problem than a fix, because I hoped that `html.parser.HTMLPARSER` would be a proper replacement for a SGML parser taking care of malformed HTML.
 - Replaced [rfc822](http://docs.python.org/2.7/library/rfc822.html) with [email](http://docs.python.org/3/library/email.html) package
 - Moved `email.Errors` to `email.errors`
 - Fixed `UnicodeDecodeError: 'utf-8' codec can't decode byte 0x8b in position 133: invalid start byte` in apt-offline-python3-dev/apt_offline_core/AptOfflineMagicLib.py, line 1109
