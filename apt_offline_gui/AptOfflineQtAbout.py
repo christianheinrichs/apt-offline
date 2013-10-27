@@ -25,9 +25,9 @@ class AptOfflineQtAbout(QtGui.QDialog):
         filename = 'LICENSE'
         locations = ['.', '/usr/local/share/doc/apt-offline/', '/usr/share/doc/apt-offline']
         for l in locations:
-            filepath = os.path.join(l,filename)
+            filepath = os.path.join(l, filename)
             if os.path.isfile(filepath):
-                f = open(filepath,"r")
+                f = open(filepath, "r")
                 self.ui.licenseText.setPlainText(f.read())
                 f.close()
                 return

@@ -64,7 +64,7 @@ from . import AptOfflineMagicLib
 guiBool = False
 guiTerminateSignal = False     # cancelling a download
 guiMetaCompleted = False
-totalSize = [0,0]              # total_size, current_total
+totalSize = [0, 0]              # total_size, current_total
 
 #INFO: Check if python-apt is installed
 PythonApt = True
@@ -247,7 +247,7 @@ class GenericDownloadFunction():
                         temp = urllib.request.urlopen(url)
                         headers = temp.info()
                         size = int(headers['Content-Length'])
-                        data = open(file,'wb')
+                        data = open(file, 'wb')
 
                         #INFO: Add the download thread into the Global ProgressBar Thread
                         self.addItem(size)
@@ -271,7 +271,7 @@ class GenericDownloadFunction():
                                         return False
 
                                 if socket_timeout is True:
-                                        errfunc(10054, "Socket Timeout. Retry - %d\n" % (socket_counter) , url)
+                                        errfunc(10054, "Socket Timeout. Retry - %d\n" % (socket_counter), url)
                                         continue
 
                                 increment = min(block_size, size - i)
@@ -290,8 +290,8 @@ class GenericDownloadFunction():
                         temp.close()
                         return True
                 #FIXME: Find out optimal fix for this exception handling
-                except OSError as xxx_todo_changeme:
-                        (errno, strerror) = xxx_todo_changeme.args
+                except OSError as errno_strerror:
+                        (errno, strerror) = errno_strerror.args
                         errfunc(errno, strerror, download_dir)
                 except urllib.error.HTTPError as errstring:
                         errfunc(errstring.code, errstring.msg, url)
@@ -333,13 +333,15 @@ def stripper(item):
         checksum - The checksum string
         and returns them.'''
 
+        chars = ["'", "\n"]
+
         item = item.split(' ')
         log.verbose("Item is %s\n" % (item) )
 
-        url = str.rstrip(str.lstrip(''.join(item[0]), "'"), "'")
-        file = str.rstrip(str.lstrip(''.join(item[1]), "'"), "'")
+        url = str.rstrip(str.lstrip(''.join(item[0]), chars[0]), chars[0])
+        file = str.rstrip(str.lstrip(''.join(item[1]), chars[0]), chars[0])
         try:
-                size = int(str.rstrip(str.lstrip(''.join(item[2]), "'"), "'"))
+                size = int(str.rstrip(str.lstrip(''.join(item[2]), chars[0]), chars[0]))
         except ValueError:
                 log.verbose("%s is malformed\n" % (" ".join(item) ) )
                 size = 0
@@ -347,8 +349,8 @@ def stripper(item):
         # INFO: md5 ends up having '\n' with it.
         # That needs to be stripped, too.
         try:
-                checksum = str.rstrip(str.lstrip(''.join(item[3]), "'"), "'")
-                checksum = str.rstrip(checksum, "\n")
+                checksum = str.rstrip(str.lstrip(''.join(item[3]), chars[0]), chars[0])
+                checksum = str.rstrip(checksum, chars[1])
         except IndexError:
                 if item[1].endswith("_Release") or item[1].endswith("_Release.gpg"):
                         checksum = None
@@ -471,10 +473,10 @@ def fetcher( args ):
                 tempdir = tempfile.gettempdir()
                 if os.access( tempdir, os.W_OK ) is True:
                         pidname = os.getpid()
-                        randomjunk = ''.join(chr(random.randint(97,122)) for x in range(5)) if guiBool else ''
+                        randomjunk = ''.join(chr(random.randint(97, 122)) for x in range(5)) if guiBool else ''
                         # 5 byte random junk to make mkdir possible multiple times
                         # use-case -> download many sigs of different machines using one instance
-                        tempdir = os.path.join(tempdir , "apt-offline-downloads-" + str(pidname) + randomjunk)
+                        tempdir = os.path.join(tempdir, "apt-offline-downloads-" + str(pidname) + randomjunk)
                         os.mkdir(tempdir)
 
                         Str_DownloadDir = os.path.abspath(tempdir)
@@ -622,7 +624,7 @@ def fetcher( args ):
                                                 bug_fetched = False
                                                 if Bool_BugReports:
                                                         log.verbose("Fetching bug reports for package %s.%s\n" % (PackageName, LINE_OVERWRITE_FULL) )
-                                                        if FetchBugReportsDebian.FetchBugsDebian(PackageName) in [1,2]:
+                                                        if FetchBugReportsDebian.FetchBugsDebian(PackageName) in [1, 2]:
                                                                 log.verbose("Fetched bug reports for package %s.%s\n" % (PackageName, LINE_OVERWRITE_FULL) )
                                                                 bug_fetched = True
                                                         else:
@@ -992,10 +994,10 @@ def installer( args ):
                 tempdir = tempfile.gettempdir()
                 if os.access( tempdir, os.W_OK ) is True:
                         pidname = os.getpid()
-                        randomjunk = ''.join(chr(random.randint(97,122)) for x in range(5)) if guiBool else ''
+                        randomjunk = ''.join(chr(random.randint(97, 122)) for x in range(5)) if guiBool else ''
                         # 5 byte random junk to make mkdir possible multiple times
                         # use-case -> installing multiple bundles with one dialog
-                        tempdir = os.path.join(tempdir , "apt-offline-src-downloads-" + str(pidname) + randomjunk )
+                        tempdir = os.path.join(tempdir, "apt-offline-src-downloads-" + str(pidname) + randomjunk )
                         os.mkdir(tempdir)
 
                         Str_InstallSrcPath = os.path.abspath(tempdir)
@@ -1015,7 +1017,7 @@ def installer( args ):
                         tempdir = tempfile.gettempdir()
                         if os.access( tempdir, os.W_OK ) is True:
                                 pidname = os.getpid()
-                                tempdir = os.path.join(tempdir , "apt-package-target-path-" + str(pidname) )
+                                tempdir = os.path.join(tempdir, "apt-package-target-path-" + str(pidname) )
                                 log.verbose("apt-package-target-path is %s\n" % (tempdir) )
                                 os.mkdir(tempdir)
 
@@ -1028,7 +1030,7 @@ def installer( args ):
                         tempdir = tempfile.gettempdir()
                         if os.access( tempdir, os.W_OK ) is True:
                                 pidname = os.getpid()
-                                tempdir = os.path.join(tempdir , "apt-update-target-path-" + str(pidname) )
+                                tempdir = os.path.join(tempdir, "apt-update-target-path-" + str(pidname) )
                                 log.verbose("apt-update-target-path is %s\n" % (tempdir) )
                                 os.mkdir(tempdir)
 
@@ -1041,7 +1043,7 @@ def installer( args ):
                         tempdir = tempfile.gettempdir()
                         if os.access( tempdir, os.W_OK ) is True:
                                 pidname = os.getpid()
-                                tempdir = os.path.join(tempdir , "apt-update-final-path-" + str(pidname) )
+                                tempdir = os.path.join(tempdir, "apt-update-final-path-" + str(pidname) )
                                 log.verbose("apt-update-final-path is %s\n" % (tempdir) )
                                 os.mkdir(tempdir)
 
@@ -1112,8 +1114,7 @@ def installer( args ):
                 value => subject string
                 '''
                 log.msg( "\n\nFollowing are the list of bugs present.\n" )
-                sortedKeyList = list(dictList.keys())
-                sortedKeyList.sort()
+                sortedKeyList = sorted(dictList.keys())
                 for each_bug in sortedKeyList:
                         pkg_name = each_bug.split( '.' )[-3].split('/')[-1]
                         bug_num = each_bug.split( '.' )[-2]
@@ -1122,13 +1123,13 @@ def installer( args ):
 
         def magic_check_and_uncompress( archive_file=None, filename=None):
                 retval = False
-                if AptOfflineMagicLib.open( archive_file ) == "application/x-bzip2" or \
-                AptOfflineMagicLib.open( archive_file ) == "application/x-gzip":
+                if AptOfflineMagicLib.file( archive_file ) == "application/x-bzip2" or \
+                AptOfflineMagicLib.file( archive_file ) == "application/x-gzip":
                         temp_filename = os.path.join(apt_update_target_path, filename + app_name)
                         filename = os.path.join(apt_update_target_path, filename)
-                        if AptOfflineMagicLib.open( archive_file ) == "application/x-bzip2":
+                        if AptOfflineMagicLib.file( archive_file ) == "application/x-bzip2":
                                 retval = archive.decompress_the_file( archive_file, temp_filename, "bzip2" )
-                        elif AptOfflineMagicLib.open( archive_file ) == "application/x-gzip":
+                        elif AptOfflineMagicLib.file( archive_file ) == "application/x-gzip":
                                 retval = archive.decompress_the_file( archive_file, temp_filename, "gzip" )
                         else:
                                 retval = False
@@ -1136,15 +1137,15 @@ def installer( args ):
                                 os.rename(temp_filename, filename)
                         else:
                                 os.unlink(temp_filename)
-                elif AptOfflineMagicLib.open( archive_file ) == "application/zip":
+                elif AptOfflineMagicLib.file( archive_file ) == "application/zip":
                         retval = archive.decompress_the_file( os.path.join( install_file_path, eachfile ), apt_update_target_path, eachfile, "zip" )
-                elif AptOfflineMagicLib.open( archive_file ) == "PGP armored data":
+                elif AptOfflineMagicLib.file( archive_file ) == "PGP armored data":
                         filename = os.path.join(apt_update_target_path, filename)
                         shutil.copy2(archive_file, filename)
                         # PGP armored data should be bypassed
                         log.verbose("File is %s, hence 'True'.\n" % (filename) )
                         retval = True
-                elif AptOfflineMagicLib.open( archive_file ) == "application/x-dpkg":
+                elif AptOfflineMagicLib.file( archive_file ) == "application/x-dpkg":
                         filename = os.path.join(apt_package_target_path, filename)
                         if os.access( apt_package_target_path, os.W_OK ):
                                 shutil.copy2( archive_file, filename )
@@ -1155,7 +1156,7 @@ def installer( args ):
                                 sys.exit( 1 )
                 elif filename.endswith( apt_bug_file_format ):
                         pass
-                elif AptOfflineMagicLib.open( archive_file ) == "ASCII text":
+                elif AptOfflineMagicLib.file( archive_file ) == "ASCII text":
                         filename = os.path.join(apt_update_target_path, filename)
                         if os.access( apt_update_target_path, os.W_OK ):
                                 shutil.copy( archive_file, filename )
@@ -1452,8 +1453,7 @@ def installer( args ):
                         log.verbose("%s %s\n" % (x, apt_update_final_path) )
                         log.msg("%s synced.\n" % (x) )
         else:
-                lFileList= os.listdir(apt_update_target_path)
-                lFileList.sort()
+                lFileList= sorted(os.listdir(apt_update_target_path))
                 lVerifiedWhitelist = []
                 for file in lFileList:
                         file = os.path.join(apt_update_target_path, file)

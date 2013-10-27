@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # -*- coding: utf-8 -*-
-import os,sys, _thread
+import os, sys, _thread
 from PyQt4 import QtCore, QtGui
 
 from apt_offline_gui.Ui_AptOfflineQtInstall import Ui_AptOfflineQtInstall
@@ -27,7 +27,7 @@ class Worker(QtCore.QThread):
         sys.stderr = self
         apt_offline_core.AptOfflineCoreLib.installer(self.args)
 
-    def setArgs (self,args):
+    def setArgs (self, args):
         self.args = args
 
     def write(self, text):
@@ -35,14 +35,14 @@ class Worker(QtCore.QThread):
         # extract chinese whisper from text
         if ('.deb' in text and 'synced' in text):
             try:
-                text = guicommon.style("Package : ",'orange') + guicommon.style(text.split("/")[-1],'green')
+                text = guicommon.style("Package : ", 'orange') + guicommon.style(text.split("/")[-1], 'green')
             except:
                 pass
             self.emit (QtCore.SIGNAL('output(QString)'), text)
         elif ('apt/lists' in text):
             try:
                 # this part is always done on a linux system so we can hardcode / for a while
-                text = guicommon.style("Update : ",'orange') + guicommon.style(text.split("/")[-1],'green')
+                text = guicommon.style("Update : ", 'orange') + guicommon.style(text.split("/")[-1], 'green')
             except:
                 # let the text be original otherwise
                 pass
@@ -51,11 +51,11 @@ class Worker(QtCore.QThread):
             try:
                 progress = str(apt_offline_core.AptOfflineCoreLib.totalSize[0])
                 total = str(apt_offline_core.AptOfflineCoreLib.totalSize[1])
-                self.emit (QtCore.SIGNAL('progress(QString,QString)'), progress,total)
+                self.emit (QtCore.SIGNAL('progress(QString,QString)'), progress, total)
             except:
                 ''' nothing to do '''
         else:
-            self.emit (QtCore.SIGNAL('output(QString)'), guicommon.style(text,'red'))
+            self.emit (QtCore.SIGNAL('output(QString)'), guicommon.style(text, 'red'))
 
     def flush(self):
         ''' nothing to do :D '''
@@ -139,7 +139,7 @@ class AptOfflineQtInstall(QtGui.QDialog):
         self.ui.zipFilePath.setFocus()
 
     def ControlStartInstallBox(self):
-        if self.ui.zipFilePath.text().isEmpty():
+        if not self.ui.zipFilePath.text():
             self.ui.startInstallButton.setEnabled(False)
         # We do the same for bug reports button
             self.ui.bugReportsButton.setEnabled(False)
@@ -147,14 +147,14 @@ class AptOfflineQtInstall(QtGui.QDialog):
             self.ui.startInstallButton.setEnabled(True)
             self.ui.bugReportsButton.setEnabled(True)
 
-    def updateLog(self,text):
-        guicommon.updateInto (self.ui.rawLogHolder,text)
+    def updateLog(self, text):
+        guicommon.updateInto (self.ui.rawLogHolder, text)
 
-    def updateStatus(self,text):
+    def updateStatus(self, text):
         # status handler
         self.ui.progressStatusDescription.setText(text)
 
-    def updateProgress(self,progress,total):
+    def updateProgress(self, progress, total):
         try:
             # try parsing numbers and updating progressBar
             percent = (float(progress)/float(total))*100
@@ -165,7 +165,7 @@ class AptOfflineQtInstall(QtGui.QDialog):
     def finishedWork(self):
         self.enableActions()
         guicommon.updateInto (self.ui.rawLogHolder,
-            guicommon.style("Finished syncting updates/packages","green_fin"))
+            guicommon.style("Finished syncing updates/packages", "green_fin"))
         self.ui.progressStatusDescription.setText("Finished Syncing")
 
     def disableActions(self):

@@ -28,7 +28,7 @@ class Worker(QtCore.QThread):
         sys.stderr = self 
         apt_offline_core.AptOfflineCoreLib.fetcher(self.args)
 
-    def setArgs (self,args):
+    def setArgs (self, args):
         self.args = args
 
     def write(self, text):
@@ -44,19 +44,19 @@ class Worker(QtCore.QThread):
             self.emit (QtCore.SIGNAL('status(QString)'), "Downloading packages ...")
         elif ("WARNING" in text):
             self.emit (QtCore.SIGNAL('output(QString)'), 
-                                    guicommon.style(text,"red"))
+                                    guicommon.style(text, "red"))
         elif ("Downloading" in text):
             self.emit (QtCore.SIGNAL('output(QString)'), 
-                                    guicommon.style(text,"orange"))
+                                    guicommon.style(text, "orange"))
         elif ("done." in text):
             self.emit (QtCore.SIGNAL('output(QString)'), 
-                                    guicommon.style(text,"green"))
+                                    guicommon.style(text, "green"))
         elif ("[" in text and "]" in text):
             try:
                 # no more splits, we know the exact byte count now
                 progress = str(apt_offline_core.AptOfflineCoreLib.totalSize[1])
                 total = str(apt_offline_core.AptOfflineCoreLib.totalSize[0])
-                self.emit (QtCore.SIGNAL('progress(QString,QString)'), progress,total)
+                self.emit (QtCore.SIGNAL('progress(QString,QString)'), progress, total)
             except:
                 ''' nothing to do '''
         else:
@@ -162,10 +162,10 @@ class AptOfflineQtFetch(QtGui.QDialog):
         if os.path.isfile(self.filepath) == False:
             if (len(self.filepath) == 0):
                 self.ui.rawLogHolder.setText ( \
-                    guicommon.style("Please select a signature file!",'red'))
+                    guicommon.style("Please select a signature file!", 'red'))
             else:
                 self.ui.rawLogHolder.setText ( \
-                    guicommon.style("%s does not exist." % self.filepath,'red'))
+                    guicommon.style("%s does not exist." % self.filepath, 'red'))
             return
 
         self.zipfilepath = str(self.ui.zipFilePath.text())
@@ -186,13 +186,13 @@ class AptOfflineQtFetch(QtGui.QDialog):
                                         os.unlink(self.zipfilepath)
                                 except:
                                         guicommon.updateInto (self.ui.rawLogHolder, 
-                                                              guicommon.style("Could'nt write to %s!" % self.zipfilepath,'red'))
+                                                              guicommon.style("Could'nt write to %s!" % self.zipfilepath, 'red'))
                         else:
                                 return
                 else:
                         if not os.access(os.path.dirname(self.zipfilepath), os.W_OK):
                                 guicommon.updateInto (self.ui.rawLogHolder,
-                                                      guicommon.style("%s does not have write access." % self.zipfilepath,'red'))
+                                                      guicommon.style("%s does not have write access." % self.zipfilepath, 'red'))
                                 return
                 targetFilePath = self.zipfilepath
                 targetDirPath = None
@@ -201,7 +201,7 @@ class AptOfflineQtFetch(QtGui.QDialog):
                 if os.path.exists(self.zipfilepath):
                         if os.access(self.zipfilepath, os.W_OK) == False:
                                 guicommon.updateInto (self.ui.rawLogHolder,
-                                                      guicommon.style("%s does not have write access." % self.zipfilepath,'red'))
+                                                      guicommon.style("%s does not have write access." % self.zipfilepath, 'red'))
                         return
                 else:
                         ret = QMessageBox.warning(self, "No such directory", "No such directory %s\n"
@@ -213,7 +213,7 @@ class AptOfflineQtFetch(QtGui.QDialog):
                                         os.mkdir(self.zipfilepath)
                                 except:
                                         guicommon.updateInto (self.ui.rawLogHolder, 
-                                                              guicommon.style("Couldn't create directory %s!" % self.zipfilepath,'red'))
+                                                              guicommon.style("Couldn't create directory %s!" % self.zipfilepath, 'red'))
                                         return
                         else:
                                 return
@@ -243,19 +243,19 @@ class AptOfflineQtFetch(QtGui.QDialog):
         # TODO to be implemented later
         # self.accept()
 
-    def updateLog(self,text):
+    def updateLog(self, text):
         if not ('[' in text and ']' in text):
             if ('Downloaded data ' in text):
                 guicommon.updateInto (self.ui.rawLogHolder,
-                                    guicommon.style(text,'green_fin'))
+                                    guicommon.style(text, 'green_fin'))
                 self.ui.progressStatusDescription.setText('Finished.')
             else:
-                guicommon.updateInto (self.ui.rawLogHolder,text)
+                guicommon.updateInto (self.ui.rawLogHolder, text)
 
-    def updateStatus(self,text):
+    def updateStatus(self, text):
         self.ui.progressStatusDescription.setText(text)
 
-    def updateProgress(self,progress,total):
+    def updateProgress(self, progress, total):
         try:
             # try parsing numbers and updating progressBar
             percent = (float(progress)/float(total))*100
@@ -264,9 +264,9 @@ class AptOfflineQtFetch(QtGui.QDialog):
             ''' nothing to do '''
 
     def controlStartDownloadBox(self):
-        if self.ui.profileFilePath.text().isEmpty():
+        if not self.ui.profileFilePath.text():
             self.disableAction()
-        if self.ui.zipFilePath.text().isEmpty():
+        if not self.ui.zipFilePath.text():
             self.disableAction()
         else:
             self.enableAction()
@@ -281,7 +281,7 @@ class AptOfflineQtFetch(QtGui.QDialog):
                 if ret == QMessageBox.Yes:
                     # we can't just stop threads, we need to pass message
                     apt_offline_core.AptOfflineCoreLib.guiTerminateSignal=True
-                    self.updateStatus(guicommon.style("Download aborted","red"))
+                    self.updateStatus(guicommon.style("Download aborted", "red"))
                     self.enableAtStop()
                     self.ui.cancelButton.setText("Close")
             else:
@@ -293,7 +293,7 @@ class AptOfflineQtFetch(QtGui.QDialog):
         apt_offline_core.AptOfflineCoreLib.guiTerminateSignal=False
         apt_offline_core.AptOfflineCoreLib.guiMetaCompleted=False
         apt_offline_core.AptOfflineCoreLib.errlist = []
-        apt_offline_core.AptOfflineCoreLib.totalSize = [0,0]
+        apt_offline_core.AptOfflineCoreLib.totalSize = [0, 0]
         self.ui.profileFilePath.setText("")
         self.ui.zipFilePath.setText("")
         self.ui.rawLogHolder.setText("")

@@ -25,21 +25,20 @@
 #
 # $Id: debianbts.py,v 1.24.2.7 2006/10/16 17:14:03 lawrencc Exp $
 
-import sgmllib, glob, os, re, rfc822, time, urllib.request, urllib.parse, urllib.error
+import html.parser, glob, os, re, email, time, urllib.request, urllib.parse, urllib.error
 from .AptOffline_urlutils import open_url
 from .AptOffline_reportbug_exceptions import NoNetwork
 import sys
 
 import mailbox
-import email
-import email.Errors
+import email.errors
 import io
 import cgi
 
 def msgfactory(fp):
     try:
         return email.message_from_file(fp)
-    except email.Errors.MessageParseError:
+    except email.errors.MessageParseError:
         # Don't return None since that will
         # stop the mailbox iterator
         return ''
@@ -49,30 +48,30 @@ class Error(Exception):
 
 # Severity levels
 SEVERITIES = {
-    'critical' : """makes unrelated software on the system (or the
+    'critical': """makes unrelated software on the system (or the
     whole system) break, or causes serious data loss, or introduces a
     security hole on systems where you install the package.""",
-    'grave' : """makes the package in question unusable by most or all users,
+    'grave': """makes the package in question unusable by most or all users,
     or causes data loss, or introduces a security hole allowing access 
     to the accounts of users who use the package.""",
-    'serious' : """is a severe violation of Debian policy (that is,
+    'serious': """is a severe violation of Debian policy (that is,
     the problem is a violation of a 'must' or 'required' directive);
     may or may not affect the usability of the package.  Note that non-severe
     policy violations may be 'normal,' 'minor,' or 'wishlist' bugs.
     (Package maintainers may also designate other bugs as 'serious' and thus
     release-critical; however, end users should not do so.)""",
-    'important' : """a bug which has a major effect on the usability
+    'important': """a bug which has a major effect on the usability
     of a package, without rendering it completely unusable to
     everyone.""",
-    'does-not-build' : """a bug that stops the package from being built
+    'does-not-build': """a bug that stops the package from being built
     from source.  (This is a 'virtual severity'.)""",
-    'normal' : """a bug that does not undermine the usability of the
+    'normal': """a bug that does not undermine the usability of the
     whole package; for example, a problem with a particular option or
     menu item.""",
-    'minor' : """things like spelling mistakes and other minor
+    'minor': """things like spelling mistakes and other minor
     cosmetic errors that do not affect the core functionality of the
     package.""",
-    'wishlist' : "suggestions and requests for new features.",
+    'wishlist': "suggestions and requests for new features.",
     }
 
 # justifications for critical bugs
@@ -117,14 +116,14 @@ JUSTORDER = {
     }
 
 SEVERITIES_gnats = {
-    'critical' : 'The product, component or concept is completely'
+    'critical': 'The product, component or concept is completely'
     'non-operational or some essential functionality is missing.  No'
     'workaround is known.',
-    'serious' : 'The product, component or concept is not working'
+    'serious': 'The product, component or concept is not working'
     'properly or significant functionality is missing.  Problems that'
     'would otherwise be considered ''critical'' are rated ''serious'' when'
     'a workaround is known.',
-    'non-critical' : 'The product, component or concept is working'
+    'non-critical': 'The product, component or concept is working'
     'in general, but lacks features, has irritating behavior, does'
     'something wrong, or doesn''t match its documentation.',
     }
@@ -179,7 +178,7 @@ debother = {
     }
 
 progenyother = {
-    'debian-general' : 'Any non-package-specific bug',
+    'debian-general': 'Any non-package-specific bug',
     }
 
 def handle_wnpp(package, bts, ui, fromaddr, online=True, http_proxy=None):
@@ -192,15 +191,15 @@ def handle_wnpp(package, bts, ui, fromaddr, online=True, http_proxy=None):
                   'things mean anything to you, or you are trying to report '
                   'a bug in an existing package, please press Enter to '
                   'exit reportbug.)', {
-        'O' :
+        'O':
         "The package has been `Orphaned'. It needs a new maintainer as soon as possible.",
-        'RFA' :
+        'RFA':
         "This is a `Request for Adoption'. Due to lack of time, resources, interest or something similar, the current maintainer is asking for someone else to maintain this package. He/she will maintain it in the meantime, but perhaps not in the best possible way. In short: the package needs a new maintainer.",
-        'RFH' :
+        'RFH':
         "This is a `Request For Help'. The current maintainer wants to continue to maintain this package, but he/she needs some help to do this, because his/her time is limited or the package is quite big and needs several maintainers.",
-        'ITP' :
+        'ITP':
         "This is an `Intent To Package'. Please submit a package description along with copyright and URL in such a report.",
-        'RFP' :
+        'RFP':
         "This is a `Request For Package'. You have found an interesting piece of software and would like someone else to maintain it for Debian. Please submit a package description along with copyright and URL in such a report.",
         }, 'Choose the request type: ', empty_ok=True)
     if not tag:
@@ -305,7 +304,7 @@ def handle_wnpp(package, bts, ui, fromaddr, online=True, http_proxy=None):
 
 # Supported servers
 # Theoretically support for GNATS and Jitterbug could be added here.
-SYSTEMS = { 'debian' :
+SYSTEMS = { 'debian':
             { 'name' : 'Debian', 'email': '%s@bugs.debian.org',
               'btsroot' : 'http://www.debian.org/Bugs/',
               'otherpkgs' : debother,
@@ -316,28 +315,28 @@ SYSTEMS = { 'debian' :
                            'chill', 'gij', 'g77', 'python', 'python-base',
                            'x-window-system-core', 'x-window-system'),
               'cgiroot' : 'http://bugs.debian.org/cgi-bin/' },
-            'kde' :
+            'kde':
             { 'name' : 'KDE Project', 'email': '%s@bugs.kde.org',
               'btsroot': 'http://bugs.kde.org/' },
-            'mandrake' :
+            'mandrake':
             { 'name' : 'Linux-Mandrake', 'email': '%s@bugs.linux-mandrake.com',
               'type' : 'mailto', 'query-dpkg' : False },
-            'gnome' :
+            'gnome':
             { 'name' : 'GNOME Project', 'email': '%s@bugs.gnome.org',
               'type' : 'mailto', 'query-dpkg' : False },
-            'ximian' :
+            'ximian':
             { 'name' : 'Ximian', 'email': '%s@bugs.ximian.com',
               'type' : 'mailto' },
-            'progeny' :
+            'progeny':
             { 'name' : 'Progeny', 'email' : 'bugs@progeny.com',
               'type' : 'gnats', 'otherpkgs' : progenyother },
-            'ubuntu' :
+            'ubuntu':
             { 'name' : 'Ubuntu', 'email' : 'ubuntu-users@lists.ubuntu.com',
               'type' : 'mailto' },
-            'guug' :
+            'guug':
             { 'name' : 'GUUG (German Unix User Group)',
               'email' : '%s@bugs.guug.de', 'query-dpkg' : False },
-            'grml' :
+            'grml':
             { 'name' : 'grml', 'email': '%s@bugs.grml.org',
               'btsroot' : 'http://bugs.grml.org/',
               'cgiroot' : 'http://bugs.grml.org/cgi-bin/' },
@@ -346,11 +345,11 @@ SYSTEMS = { 'debian' :
 SYSTEMS['helixcode'] = SYSTEMS['ximian']
 
 CLASSES = {
-    'sw-bug' : 'The problem is a bug in the software or code.  For'
+    'sw-bug': 'The problem is a bug in the software or code.  For'
     'example, a crash would be a sw-bug.',
-    'doc-bug' : 'The problem is in the documentation.  For example,'
+    'doc-bug': 'The problem is in the documentation.  For example,'
     'an error in a man page would be a doc-bug.',
-    'change-request' : 'You are requesting a new feature or a change'
+    'change-request': 'You are requesting a new feature or a change'
     'in the behavior of software, or are making a suggestion.  For'
     'example, if you wanted reportbug to be able to get your local'
     'weather forecast, as well as report bugs, that would be a'
@@ -360,17 +359,17 @@ CLASSES = {
 CLASSLIST = ['sw-bug', 'doc-bug', 'change-request']
 
 CRITICAL_TAGS = {
-    'security' : 'This problem is a security vulnerability in Debian.',
+    'security': 'This problem is a security vulnerability in Debian.',
 }
 
 TAGS = {
-    'patch' : 'You are including a patch to fix this problem.',
+    'patch': 'You are including a patch to fix this problem.',
 ##    'upstream' : 'You believe this problem is not specific to Debian.',
 ##    'potato' : 'This bug only applies to the potato release (Debian 2.2).',
 ##    'woody' : 'This bug only applies to the woody release (Debian 3.0).',
 ##    'sarge' : 'This bug only applies to the sarge release (Debian 3.1).',
 ##    'sid' : 'This bug only applies to the unstable branch of Debian.',
-    "l10n" : "This bug reports a localization/internationalization issue.",
+    "l10n": "This bug reports a localization/internationalization issue.",
 ##    'done' : 'No more tags.',
     }
 
@@ -489,9 +488,9 @@ for origin in glob.glob('/etc/dpkg/origins/*'):
 # - Contents of <title>...</title>
 # - Contents of every <pre>...</pre> after a <h2>....</h2> tag.
 
-class BTSParser(sgmllib.SGMLParser):
+class BTSParser(html.parser.HTMLParser):
     def __init__(self, mode='summary', cgi=False, followups=False):
-        sgmllib.SGMLParser.__init__(self)
+        html.parser.HTMLParser.__init__(self)
         self.hierarchy = []
         self.lidata = None
         self.lidatalist = None
@@ -840,8 +839,7 @@ def get_reports(package, system='debian', mirrors=None, version=None,
 
     # A list of bug numbers
     this_hierarchy = []
-    package = [int(x) for x in package]
-    package.sort()
+    package = sorted([int(x) for x in package])
     for bug in package:
         result = get_report(bug, system, mirrors, http_proxy, archived)
         if result:
@@ -873,9 +871,9 @@ def get_report(number, system='debian', mirrors=None,
 
     return parse_html_report(number, url, http_proxy, followups, cgi=False)
 
-class NullParser(sgmllib.SGMLParser):
+class NullParser(html.parser.HTMLParser):
     def __init__(self):
-        sgmllib.SGMLParser.__init__(self)
+        html.parser.HTMLParser.__init__(self)
 
 if __name__ == '__main__':
     import pprint

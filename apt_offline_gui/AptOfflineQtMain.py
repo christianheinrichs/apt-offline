@@ -28,7 +28,7 @@ class AptOfflineQtMain(QtGui.QMainWindow):
 
     def ConfigureCreateProfile(self):
         QtCore.QObject.connect(self.ui.menuCreateProfile, QtCore.SIGNAL("triggered()"), self.CreateProfile)
-        QtCore.QObject.connect(self.ui.createProfileButton,QtCore.SIGNAL("clicked()"), self.CreateProfile)
+        QtCore.QObject.connect(self.ui.createProfileButton, QtCore.SIGNAL("clicked()"), self.CreateProfile)
         # Create an object and do not show it
         self.createProfileDialog = AptOfflineQtCreateProfile()
         # setup hover hack
@@ -59,7 +59,7 @@ class AptOfflineQtMain(QtGui.QMainWindow):
         QtCore.QObject.connect(self.ui.menuExit, QtCore.SIGNAL("triggered()"), self.ExitApp)
         QtCore.QObject.connect(self.ui.exitButton, QtCore.SIGNAL("clicked()"), self.ExitApp)
 
-    def eventFilter(self,target,event):
+    def eventFilter(self, target, event):
         # hover hack for 3 buttons
         if event.type() == QtCore.QEvent.HoverEnter:
             if target.objectName() == 'createProfileButton':

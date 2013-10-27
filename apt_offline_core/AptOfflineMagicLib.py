@@ -925,7 +925,7 @@ def strToNum(n):
 
 def unescape(s):
   # replace string escape sequences
-  while 1:
+  while True:
     m = re.search(b'\\', s)
     if not m: break
     x = m.start()+1
@@ -960,7 +960,7 @@ class magicTest:
     if t.count('&') > 0:
       mask = strToNum(t[t.index('&')+1:])  
       t = t[:t.index('&')]
-    if type(offset) == type('a'):
+    if isinstance(offset, type('a')):
       self.offset = strToNum(offset)
     else:
       self.offset = offset
@@ -1068,7 +1068,7 @@ def load(file):
 
         mask = None
         if type == 'string':
-          while 1:
+          while True:
             value = unescape(value)
             if value[len(value)-1] == ' ' and len(line) > 3:
               # last value was an escaped space, join
@@ -1106,7 +1106,7 @@ def whatis(data):
 
 def file(file):
   try:
-    return whatis(open(file, 'r').read(8192))
+    return whatis(open(file, 'rb').read(8192))
   except Exception as e:
     if str(e) == '[Errno 21] Is a directory':
       return 'directory'

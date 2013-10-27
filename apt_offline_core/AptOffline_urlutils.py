@@ -74,7 +74,7 @@ class HttpWithGzipHandler (urllib.request.HTTPHandler):
     def http_open (self, req):
         return decode(urllib.request.HTTPHandler.http_open(self, req))
 
-if hasattr(httplib, 'HTTPS'):
+if hasattr(http.client, 'HTTPS'):
     class HttpsWithGzipHandler (urllib.request.HTTPSHandler):
         "support gzip encoding"
         def http_open (self, req):
@@ -97,7 +97,7 @@ def urlopen(url, proxies=None, data=None):
     global _opener
 
     if not proxies:
-        proxies = urllib.getproxies()
+        proxies = urllib.request.getproxies()
 
     headers = {'User-Agent': UA_STR,
                'Accept-Encoding' : 'gzip;q=1.0, deflate;q=0.9, identity;q=0.5'}
@@ -115,7 +115,7 @@ def urlopen(url, proxies=None, data=None):
             urllib.request.ProxyDigestAuthHandler(pwd_manager),
             urllib.request.HTTPDefaultErrorHandler, urllib.request.HTTPRedirectHandler,
         ]
-        if hasattr(httplib, 'HTTPS'):
+        if hasattr(http.client, 'HTTPS'):
             handlers.append(HttpsWithGzipHandler)
         _opener = urllib.request.build_opener(*handlers)
         # print _opener.handlers
@@ -126,7 +126,7 @@ def urlopen(url, proxies=None, data=None):
 # Global useful URL opener; returns None if the page is absent, otherwise
 # like urlopen
 def open_url(url, http_proxy=None):
-    proxies = urllib.getproxies()
+    proxies = urllib.request.getproxies()
     if http_proxy:
         proxies['http'] = http_proxy
 

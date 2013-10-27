@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # -*- coding: utf-8 -*-
-import sys,os
+import sys, os
 from PyQt4 import QtCore, QtGui
 
 from apt_offline_gui.Ui_AptOfflineQtCreateProfile import Ui_CreateProfile
@@ -53,10 +53,10 @@ class AptOfflineQtCreateProfile(QtGui.QDialog):
         if os.path.exists(os.path.dirname(self.filepath)) == False:
             if (len(self.filepath) == 0):
                 self.ui.consoleOutputHolder.setText ( \
-                    guicommon.style("Please select a file to store the signature!",'red'))
+                    guicommon.style("Please select a file to store the signature!", 'red'))
             else:
                 self.ui.consoleOutputHolder.setText ( \
-                    guicommon.style("Could not access  %s" % self.filepath,'red'))
+                    guicommon.style("Could not access  %s" % self.filepath, 'red'))
             return
 
         # If atleast one is requested
@@ -75,7 +75,7 @@ class AptOfflineQtCreateProfile(QtGui.QDialog):
 
             if(returnStatus != False):  # right now it returns None, I think it doesn't return at all but sys.exits on failure
                 # TODO ^ fixup this behaviour
-                guicommon.updateInto(self.ui.consoleOutputHolder, guicommon.style("Completed.","green_fin"))
+                guicommon.updateInto(self.ui.consoleOutputHolder, guicommon.style("Completed.", "green_fin"))
                 self.ui.createProfileButton.setEnabled(False)
                 self.ui.cancelButton.setText("Finish")
                 self.ui.cancelButton.setIcon(QtGui.QIcon())
@@ -94,7 +94,7 @@ class AptOfflineQtCreateProfile(QtGui.QDialog):
         # redirects console output to our consoleOutputHolder
         text=text.strip()
         if (len(text)>2):
-            guicommon.updateInto(self.ui.consoleOutputHolder,text)
+            guicommon.updateInto(self.ui.consoleOutputHolder, text)
 
     def flush(self):
         ''' nothing to do :D '''
