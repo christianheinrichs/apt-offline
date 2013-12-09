@@ -1,6 +1,7 @@
 # This file will be removed soon
 
 # Solution 1:
+# The keyword arguments chars="'" and chars="\n" were replaced by "'" and "\n".
 
 def stripper(item):
         '''Strips extra characters from "item".
@@ -33,6 +34,8 @@ def stripper(item):
         return url, file, size, checksum
 
 # Solution 2:
+# In this solution, chars is a variable defined as a list.
+# Its contents are then accessed with either chars[0] or chars[1].
 
 def stripper(item):
         '''Strips extra characters from "item".
