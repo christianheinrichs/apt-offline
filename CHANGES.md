@@ -101,7 +101,7 @@ Commit [beed00f005ccf67d34b04363fcb2a4e388a379b8](https://github.com/codingaroun
 - Moved `urllib.getproxies()` to `urllib.request.getproxies()`
 - Because PyQt4 handles `QString` objects as `str` and `unicode` objects in combination with Python 3, `isEmpty()` can't be used anymore. It was replaced with `not`.
 
-Commit submitted on Jan 11, 2014:
+Commit [e6595e8d14832218b5d7e461d9fb5865224e9651](https://github.com/netcyphe/apt-offline-python3-dev/commit/e6595e8d14832218b5d7e461d9fb5865224e9651) submitted on Jan 11, 2014:
 
 - Added missing class `NoNetwork` from AptOffline_reportbug_exceptions.py
 - Removed unneeded import line in AptOffline_urlutils.py
