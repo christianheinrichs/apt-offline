@@ -24,7 +24,6 @@
 # Version 3.35; see changelog for revision history
 
 import http.client
-import urllib.request, urllib.parse, urllib.error
 import urllib.request, urllib.error, urllib.parse
 import getpass
 import re

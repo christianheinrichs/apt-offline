@@ -186,7 +186,7 @@ def handle_wnpp(package, bts, ui, fromaddr, online=True, http_proxy=None):
     headers = []
     pseudos = []
     query = True
-    
+
     tag = ui.menu('What sort of request is this?  (If none of these '
                   'things mean anything to you, or you are trying to report '
                   'a bug in an existing package, please press Enter to '
@@ -229,7 +229,7 @@ def handle_wnpp(package, bts, ui, fromaddr, online=True, http_proxy=None):
                 'warning message may have been produced in error.',
                 'Exit without filing a report.', default=0):
                 sys.exit(1)
-            
+
         severity = 'wishlist'
 
         desc = ui.get_string(
@@ -557,7 +557,7 @@ class BTSParser(html.parser.HTMLParser):
     def end_ul(self):
         if self.inbuglist:
             self.check_li()
-        
+
         self.inbuglist = False
 
     def do_br(self, attrs):
@@ -725,7 +725,7 @@ def parse_mbox_report(number, url, http_proxy, followups=False):
     for message in mbox:
         if not message:
             pass
-        
+
         subject = message.get('Subject')
         if not title:
             title = subject

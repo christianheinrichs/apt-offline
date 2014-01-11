@@ -21,6 +21,7 @@
 ############################################################################
 
 import os
+from .AptOffline_reportbug_exceptions import NoNetwork
 import sys
 import time
 import shutil
@@ -31,7 +32,7 @@ import queue
 import threading
 import socket
 import tempfile
-import random   # to generate random directory names for installing multiple bundles in on go
+import random   # to generate random directory names for installing multiple bundles in one go
 import zipfile
 import pydoc
 
@@ -1950,4 +1951,4 @@ def main():
 
         except KeyboardInterrupt:
                 log.err("\nInterrupted by user. Exiting!\n")
-                sys.exit(0)        
+                sys.exit(0)

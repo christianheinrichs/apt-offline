@@ -89,7 +89,7 @@ Commit [beed00f005ccf67d34b04363fcb2a4e388a379b8](https://github.com/codingaroun
 - Switched back `AptOfflineMagicLib.open` to `AptOfflineMagicLib.file`
 - Fixed bug printing the error:
   ````
-  Couldn't find debianbts module.  
+  Couldn't find debianbts module.
   Cannot fetch Bug Reports.
   ````
 - Replaced [sgmllib](http://docs.python.org/2.7/library/sgmllib.html) module with [html.parser](http://docs.python.org/3/library/html.parser.html).  
@@ -100,3 +100,8 @@ Commit [beed00f005ccf67d34b04363fcb2a4e388a379b8](https://github.com/codingaroun
 - Replaced [htmllib](http://docs.python.org/2.7/library/htmllib.html) module with [http.client](http://docs.python.org/3/library/http.client.html) module
 - Moved `urllib.getproxies()` to `urllib.request.getproxies()`
 - Because PyQt4 handles `QString` objects as `str` and `unicode` objects in combination with Python 3, `isEmpty()` can't be used anymore. It was replaced with `not`.
+
+Commit submitted on Jan 11, 2014:
+
+- Added missing class `NoNetwork` from AptOffline_reportbug_exceptions.py
+- Removed unneeded import line in AptOffline_urlutils.py

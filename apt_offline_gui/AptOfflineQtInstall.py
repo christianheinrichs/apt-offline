@@ -104,7 +104,7 @@ class AptOfflineQtInstall(QtGui.QDialog):
                         self.finishedWork )
 
     def StartInstall(self):
-        # gui validation
+        # GUI validation
         # Clear the consoleOutputHolder
         self.ui.rawLogHolder.setText("")
         self.filepath = str(self.ui.zipFilePath.text())
