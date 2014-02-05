@@ -106,7 +106,7 @@ Commit [e6595e8d14832218b5d7e461d9fb5865224e9651](https://github.com/netcyphe/ap
 - Added missing class `NoNetwork` from AptOffline_reportbug_exceptions.py
 - Removed unneeded import line in AptOffline_urlutils.py
 
-Commit []() submitted on Feb 05, 2014:
+Commit [a3e08ab63084f6445b5596ec9be1bfa66f8b44a4](https://github.com/netcyphe/apt-offline/commit/a3e08ab63084f6445b5596ec9be1bfa66f8b44a4) submitted on Feb 05, 2014:
 
 - Implemented workaround for argparse bug, when no arguments are given
 - The GUI now checks the download and install procedure on the Windows GUI
