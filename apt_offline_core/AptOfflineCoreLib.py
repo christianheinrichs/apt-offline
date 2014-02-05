@@ -531,8 +531,8 @@ def fetcher( args ):
         if Str_GetArg is not None:
                 try:
                         raw_data_list = open( Str_GetArg, 'r' ).readlines()
-                except IOError as xxx_todo_changeme1:
-                        ( errno, strerror ) = xxx_todo_changeme1.args
+                except IOError as errno_strerror:
+                        ( errno, strerror ) = errno_strerror.args
                         log.err( "%s %s\n" % ( errno, strerror ) )
                         errfunc( errno, '' )
 
@@ -1947,7 +1947,14 @@ def main():
                 log = AptOfflineLib.Log( Bool_Verbose, lock=True )
                 log.verbose(str(args) + "\n")
 
-                args.func(args)
+                # Workaround taken from:
+                # https://github.com/telmich/cdist/commit/9195c9b#diff-12f5bcc554bd52608a0f83f3fc5ff64c
+                # and adapted to this piece of code.
+                # TODO: Do NOT print_help(), but instead find the appropriate way
+                try:
+                    args.func(args)
+                except AttributeError:
+                    parser.print_help()
 
         except KeyboardInterrupt:
                 log.err("\nInterrupted by user. Exiting!\n")

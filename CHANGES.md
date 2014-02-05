@@ -75,7 +75,7 @@ Commit [0a81e988b2892431163de115f20e41e5e4245902](https://github.com/codingaroun
     TypeError: lstrip() takes no keyword arguments
     ````
     
-    As you can see the problem applies to both versions.  
+    As you can see, the problem applies to both versions.  
     So it is most likely that those two string methods don't accept keyword arguments (also take a look at these three bug reports mentioned in the questions: [Issue 1176](http://bugs.python.org/issue1176), [Issue 8350](http://bugs.python.org/issue8350), [Issue 8626](http://bugs.python.org/issue8626) and [this documentation entry](http://docs.python.org/dev/reference/expressions.html#calls)).  
     But then again, I ask myself how that could work in the Python 2 version of apt-offline.
 
@@ -105,3 +105,8 @@ Commit [e6595e8d14832218b5d7e461d9fb5865224e9651](https://github.com/netcyphe/ap
 
 - Added missing class `NoNetwork` from AptOffline_reportbug_exceptions.py
 - Removed unneeded import line in AptOffline_urlutils.py
+
+Commit []() submitted on Feb 05, 2014:
+
+- Implemented workaround for argparse bug, when no arguments are given
+- The GUI now checks the download and install procedure on the Windows GUI
