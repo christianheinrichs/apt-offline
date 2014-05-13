@@ -340,12 +340,18 @@ def stripper(item):
         log.verbose("Item is %s\n" % (item) )
 
         url = str.rstrip(str.lstrip(''.join(item[0]), chars[0]), chars[0])
+        log.verbose("Stripped item URL is: %s\n" % url)
+
         file = str.rstrip(str.lstrip(''.join(item[1]), chars[0]), chars[0])
+        log.verbose("Stripped item FILE is: %s\n" % file)
+
         try:
                 size = int(str.rstrip(str.lstrip(''.join(item[2]), chars[0]), chars[0]))
         except ValueError:
                 log.verbose("%s is malformed\n" % (" ".join(item) ) )
                 size = 0
+                log.verbose("Stripped item SIZE is: %d\n" % size)
+
 
         # INFO: md5 ends up having '\n' with it.
         # That needs to be stripped, too.
@@ -355,6 +361,8 @@ def stripper(item):
         except IndexError:
                 if item[1].endswith("_Release") or item[1].endswith("_Release.gpg"):
                         checksum = None
+        log.verbose("Stripped item CHECKSUM is: %s\n" % checksum)
+        
         return url, file, size, checksum
 
 
@@ -814,7 +822,7 @@ def fetcher( args ):
                         log.msg("Downloading %s.%s\n" % (PackageName, LINE_OVERWRITE_MID) ) 
                         if DownloadPackages(url) is False and guiTerminateSignal is False:
                                 # don't proceed retry if Ctrl+C in cli
-                                log.verbose("%s failed. Retry with the remaining possible formats" % (url) )
+                                log.verbose("%s failed. Retry with the remaining possible formats\n" % (url) )
 
                                 # We could fail with the Packages format of what apt gave us. We can try the rest of the formats that apt or the archive could support
                                 for Format in SupportedFormats:
@@ -1506,7 +1514,7 @@ def setter(args):
                 Bool_SetUpgrade = True
 
         class AptManip:
-                def __init__(self, OutputFile, Simulate=False, AptType="apt"):
+                def __init__(self, OutputFile, Simulate=False, AptType="python-apt"):
 
                         self.WriteTo = OutputFile
                         self.Simulate = Simulate
@@ -1516,8 +1524,7 @@ def setter(args):
                         elif AptType == "aptitude":
                                 self.apt = "aptitude"
                         elif AptType == "python-apt":
-                                #TODO:
-                                pass
+                                self.apt = "python-apt"
                         else:
                                 self.apt = "apt-get"
 
@@ -1539,6 +1546,8 @@ def setter(args):
                                 self.__AptGetUpdate()
                         elif self.apt == "aptitude":
                                 pass
+                        elif self.apt == "python-apt":
+                                self.__PythonAptUpdate()
                         else:
                                 log.err("Method not supported")
                                 sys.exit(1)
@@ -1549,6 +1558,10 @@ def setter(args):
                                 self.__AptGetUpgrade(UpgradeType, ReleaseType)
                         elif self.apt == "aptitude":
                                 pass
+                        elif self.apt == "python-apt":
+                                # Upgrade is broken in python-apt
+                                # Hence for now, redirect to apt-get
+                                self.__AptGetUpgrade(UpgradeType, ReleaseType)
                         else:
                                 log.err("Method not supported")
                                 sys.exit(1)
@@ -1592,7 +1605,7 @@ def setter(args):
                         os.environ['LANG'] = "C"
                         log.verbose( "Set environment variable for LANG from %s to %s temporarily.\n" % ( old_environ, os.environ['LANG'] ) )
 
-                        if self.__ExecSystemCmd('/usr/bin/apt-get -qq --print-uris --simulate update >> $__apt_set_update') is False:
+                        if self.__ExecSystemCmd('/usr/bin/apt-get -q --print-uris update >> $__apt_set_update') is False:
                                 log.err( "FATAL: Something is wrong with the apt system.\n" )
                         log.verbose( "Set environment variable for LANG back to its original from %s to %s.\n" % ( os.environ['LANG'], old_environ ) )
                         os.environ['LANG'] = old_environ
@@ -1604,7 +1617,72 @@ def setter(args):
                         pass
 
                 def __PythonAptUpdate(self):
-                        pass
+                        log.verbose("Open file %s for write" % self.WriteTo)
+                        try:
+                                writeFH = open(self.WriteTo, 'a')
+                        except:
+                                log.err("Failed to open file %s for write. Exiting")
+                                sys.exit(1)
+                        
+                        log.msg("\nGenerating database of files that are needed for an update.\n")
+                        log.verbose("\nUsing python apt interface\n")
+                        
+                        apt_pkg.init_config()
+                        apt_pkg.init_system()
+                        
+                        acquire = apt_pkg.Acquire()
+                        slist = apt_pkg.SourceList()
+                        
+                        # Read the main list
+                        slist.read_main_list()
+                        
+                        # Add all indexes to the fetcher
+                        slist.get_indexes(acquire, True)
+                        
+                        # Now write the URI of every item
+                        for item in acquire.items:
+                                
+                                #INFO: For update files, there's no checksum present.
+                                # Also, their size is not determined.
+                                # Hence filesize is always returned '0'
+                                # And checksum is something I'm writing as ':'
+                                
+                                # We strip item.destfile because that's how apt-get had historically presented it to us
+                                destFile = item.destfile.split("/")[-1]
+
+                                writeFH.write("'" + item.desc_uri + "'" + " " + destFile + " " + str(item.filesize) + " " + ":" + "\n")
+                                log.verbose("Writing string %s %s %d %s to file %s\n" % (item.desc_uri, destFile, item.filesize, ":", self.WriteTo) )
+                                writeFH.flush()
+                        writeFH.close()
+                
+                def __PythonAptUpgrade(self, UpgradeType="upgrade", ReleaseType=None):
+                        # THis doesn't work as expected. In fact, the code fails.
+                        
+                        
+                        log.verbose("Open file %s for write" % self.WriteTo)
+                        try:
+                                writeFH = open(self.WriteTo, 'a')
+                        except:
+                                log.err("Failed to open file %s for write. Exiting")
+                                sys.exit(1)
+                        
+                        log.msg("\nGenerating database of files that are needed for an upgrade.\n")
+                        log.verbose("\nUsing python apt interface\n")
+                        
+                        #TODO: Right now, I don't know what to do with UpgradeType and Release Type in python-apt
+                        cache = apt.Cache()
+                        upgradablePkgs = filter(lambda p: p.is_upgradable, cache)
+                        
+                        for pkg in upgradablePkgs:
+                                pkg._lookupRecord(True)
+                                path = apt_pkg.TagSection(pkg._records.record)["Filename"]
+                                cand = pkg._depcache.get_candidate_ver(pkg._pkg)
+                                
+                                for (packagefile, i) in cand.file_list:
+                                        indexfile = cache._list.find_index(packagefile)
+                                        if indexfile:
+                                                uri = indexfile.archive_uri(path)
+                                                print(uri)
 
                 def __AptGetUpgrade(self, UpgradeType="upgrade", ReleaseType=None):
                         self.ReleaseType = ReleaseType
@@ -1727,7 +1805,7 @@ def setter(args):
 
 
         #Instantiate Apt based on what we have. For now, fall to apt only
-        AptInst = AptManip(Str_SetArg, Simulate=Bool_TestWindows, AptType="apt")
+        AptInst = AptManip(Str_SetArg, Simulate=Bool_TestWindows, AptType="python-apt")
 
         if Bool_SetUpdate:
                 if platform.system() in supported_platforms:
